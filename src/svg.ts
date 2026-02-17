@@ -1,4 +1,4 @@
-import type { ColorToken, ComponentToken } from './types.js';
+import type { ColorToken, ComponentToken, TypographyToken } from './types.js';
 import { truncate } from './util.js';
 
 function escapeXml(text: string): string {
@@ -116,5 +116,59 @@ export function generateComponentsSvg(components: ComponentToken[], title: strin
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}">\n`
     + `  <text x="${COMP_GAP}" y="28" font-family="${FONT}" font-size="16" font-weight="600" fill="#111">${escapeXml(title)} — Component Inventory</text>\n`
     + groupSvgs.join('\n')
+    + `\n</svg>`;
+}
+
+const TYPO_ROW_H = 36;
+const TYPO_BAR_W = 60;
+
+export function generateTypographySvg(tokens: TypographyToken[], title: string): string {
+  if (tokens.length === 0) {
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 60">\n`
+      + `  <text x="10" y="30" font-family="${FONT}" font-size="14" fill="#888">No typography captured</text>\n`
+      + `</svg>`;
+  }
+
+  const families = new Map<string, TypographyToken[]>();
+  for (const token of tokens) {
+    const list = families.get(token.fontFamily) ?? [];
+    list.push(token);
+    families.set(token.fontFamily, list);
+  }
+
+  const maxCount = Math.max(...tokens.map((t) => t.count), 1);
+  const width = 600;
+  let y = 50;
+  const lines: string[] = [];
+
+  for (const [family, items] of families) {
+    lines.push(
+      `  <text x="12" y="${y}" font-family="${FONT}" font-size="14" font-weight="600" fill="#222">${escapeXml(family)}</text>`
+    );
+    y += 6;
+    lines.push(
+      `  <line x1="12" y1="${y}" x2="${width - 12}" y2="${y}" stroke="#ddd"/>`
+    );
+    y += 20;
+
+    for (const token of items.slice(0, 10)) {
+      const meta = `${escapeXml(token.fontSize)} / ${escapeXml(token.fontWeight)} / ${escapeXml(token.lineHeight)}`;
+      const barW = Math.round((token.count / maxCount) * TYPO_BAR_W);
+
+      lines.push(
+        `  <text x="12" y="${y}" font-family="${FONT}" font-size="11" fill="#555">${meta}</text>`,
+        `  <rect x="240" y="${y - 8}" width="${TYPO_BAR_W}" height="8" fill="#eee" rx="2"/>`,
+        `  <rect x="240" y="${y - 8}" width="${barW}" height="8" fill="#555" rx="2"/>`,
+        `  <text x="310" y="${y}" font-family="${FONT}" font-size="9" fill="#888">${token.count}</text>`,
+        `  <text x="350" y="${y}" font-family="${escapeXml(family)}, ${FONT}" font-size="12" fill="#333">Aa Bb Cc 123</text>`,
+      );
+      y += TYPO_ROW_H;
+    }
+    y += 12;
+  }
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${y + 10}">\n`
+    + `  <text x="12" y="28" font-family="${FONT}" font-size="16" font-weight="600" fill="#111">${escapeXml(title)} — Typography Specimen</text>\n`
+    + lines.join('\n')
     + `\n</svg>`;
 }
