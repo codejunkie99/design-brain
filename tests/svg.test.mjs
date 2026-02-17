@@ -97,3 +97,72 @@ test('generateLayoutSvg handles empty layout', () => {
   assert.ok(svg.startsWith('<svg'));
   assert.ok(svg.includes('No layout'));
 });
+
+// Integration test: renderAll generates SVG files
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import os from 'node:os';
+import { renderAll } from '../dist/render.js';
+
+test('renderAll generates SVG files in visuals directory', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'design-brain-svg-'));
+  const brain = path.join(root, '.design-brain');
+  await fs.mkdir(path.join(brain, 'projects'), { recursive: true });
+  await fs.mkdir(path.join(brain, 'assets'), { recursive: true });
+  await fs.mkdir(path.join(brain, 'graph'), { recursive: true });
+
+  const db = {
+    version: 1,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    projects: [{
+      id: 'test-proj',
+      name: 'Test Project',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      inspirations: [{
+        id: 'inspo-1',
+        name: 'Stripe',
+        sourceType: 'url',
+        capturedAt: new Date().toISOString(),
+        tags: ['button'],
+        fingerprint: 'abc123',
+        version: 1,
+        analysis: {
+          colors: [{ hex: '#0055FF', count: 10, samples: ['btn'] }],
+          typography: [{ fontFamily: 'Inter', fontSize: '16px', fontWeight: '400', lineHeight: '1.5', count: 5 }],
+          components: [{ kind: 'button', tag: 'button', selector: '.btn', text: 'Pay', className: 'btn', styles: {} }],
+          motion: [],
+          layout: [{ tag: 'main', selector: '.content', role: 'main', children: 2 }],
+          cssVariables: {},
+        },
+      }],
+      outcomes: [],
+    }],
+  };
+
+  await fs.writeFile(path.join(brain, 'database.json'), JSON.stringify(db, null, 2));
+  await renderAll(root, db);
+
+  // Check project-level visuals exist
+  const visualDir = path.join(brain, 'projects', 'test-proj', 'visuals');
+  const palette = await fs.readFile(path.join(visualDir, 'palette.svg'), 'utf-8');
+  const components = await fs.readFile(path.join(visualDir, 'components.svg'), 'utf-8');
+  const typography = await fs.readFile(path.join(visualDir, 'typography.svg'), 'utf-8');
+  const layout = await fs.readFile(path.join(visualDir, 'layout.svg'), 'utf-8');
+
+  assert.ok(palette.includes('#0055FF'));
+  assert.ok(components.includes('button'));
+  assert.ok(typography.includes('Inter'));
+  assert.ok(layout.includes('main'));
+
+  // Check per-inspiration visuals exist
+  const inspoDir = path.join(brain, 'projects', 'test-proj', 'inspirations', 'inspo-1');
+  const inspoPalette = await fs.readFile(path.join(inspoDir, 'palette.svg'), 'utf-8');
+  assert.ok(inspoPalette.includes('#0055FF'));
+
+  // Check markdown embeds SVG links
+  const readme = await fs.readFile(path.join(brain, 'projects', 'test-proj', 'README.md'), 'utf-8');
+  assert.ok(readme.includes('palette.svg'));
+  assert.ok(readme.includes('Visual Catalog'));
+});
