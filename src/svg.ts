@@ -1,4 +1,4 @@
-import type { ColorToken, ComponentToken, TypographyToken } from './types.js';
+import type { ColorToken, ComponentToken, LayoutToken, TypographyToken } from './types.js';
 import { truncate } from './util.js';
 
 function escapeXml(text: string): string {
@@ -169,6 +169,51 @@ export function generateTypographySvg(tokens: TypographyToken[], title: string):
 
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${y + 10}">\n`
     + `  <text x="12" y="28" font-family="${FONT}" font-size="16" font-weight="600" fill="#111">${escapeXml(title)} — Typography Specimen</text>\n`
+    + lines.join('\n')
+    + `\n</svg>`;
+}
+
+const LAYOUT_W = 500;
+const LAYOUT_PAD = 16;
+const LAYOUT_ITEM_H = 56;
+
+const ROLE_COLORS: Record<string, string> = {
+  banner: '#E3F2FD',
+  navigation: '#FFF3E0',
+  main: '#E8F5E9',
+  complementary: '#F3E5F5',
+  contentinfo: '#ECEFF1',
+  region: '#FFFDE7',
+};
+
+export function generateLayoutSvg(layout: LayoutToken[], title: string): string {
+  if (layout.length === 0) {
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 60">\n`
+      + `  <text x="10" y="30" font-family="${FONT}" font-size="14" fill="#888">No layout captured</text>\n`
+      + `</svg>`;
+  }
+
+  const items = layout.slice(0, 12);
+  const nestedTags = new Set(['aside', 'section', 'article']);
+  let y = 50;
+  const lines: string[] = [];
+
+  for (const item of items) {
+    const isNested = nestedTags.has(item.tag);
+    const indent = isNested ? LAYOUT_PAD * 2 : LAYOUT_PAD;
+    const boxW = isNested ? LAYOUT_W - LAYOUT_PAD * 4 : LAYOUT_W - LAYOUT_PAD * 2;
+    const fill = ROLE_COLORS[item.role] ?? '#F5F5F5';
+
+    lines.push(
+      `  <rect x="${indent}" y="${y}" width="${boxW}" height="${LAYOUT_ITEM_H}" fill="${fill}" stroke="#ccc" rx="4"/>`,
+      `  <text x="${indent + 8}" y="${y + 18}" font-family="${FONT}" font-size="11" font-weight="600" fill="#333">&lt;${escapeXml(item.tag)}&gt; ${escapeXml(item.selector)} [${escapeXml(item.role || '-')}]</text>`,
+      `  <text x="${indent + 8}" y="${y + 36}" font-family="${FONT}" font-size="10" fill="#888">children: ${item.children}</text>`,
+    );
+    y += LAYOUT_ITEM_H + 8;
+  }
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${LAYOUT_W} ${y + 10}">\n`
+    + `  <text x="${LAYOUT_PAD}" y="28" font-family="${FONT}" font-size="16" font-weight="600" fill="#111">${escapeXml(title)} — Layout Structure</text>\n`
     + lines.join('\n')
     + `\n</svg>`;
 }
