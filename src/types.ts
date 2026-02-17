@@ -176,6 +176,7 @@ export interface IngestOptions {
   llm?: LlmConfig;
   journeySteps?: number;
   responsiveViewports?: Array<{ label: string; width: number; height: number }>;
+  skipVisuals?: boolean;
 }
 
 export interface OutcomeOptions {
