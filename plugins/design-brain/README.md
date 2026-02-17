@@ -35,3 +35,7 @@ export DESIGN_BRAIN_LLM_BASE_URL=\"https://api.openai.com/v1\"
 export DESIGN_BRAIN_LLM_API_KEY=\"<your-key>\"
 export DESIGN_BRAIN_LLM_MODEL=\"gpt-4o-mini\"
 ```
+
+## Credits
+
+- This plugin relies on [Agent Browser CLI](https://github.com/vercel-labs/agent-browser) by Vercel Labs for browser automation.

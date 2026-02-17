@@ -161,3 +161,7 @@ rg "fingerprint" .design-brain/projects/*/inspirations/*.md
 
 - Browser usage follows Agent Browser CLI patterns from the upstream README (`open`, `set viewport`, `snapshot`, `click`, `hover`, `focus`, `eval`, `screenshot`, `back`, `close`).
 - If `agent-browser` is not globally installed, the CLI falls back to `npx agent-browser`.
+
+## Credits
+
+- Built on top of [Agent Browser CLI](https://github.com/vercel-labs/agent-browser) by Vercel Labs.
