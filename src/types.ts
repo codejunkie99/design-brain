@@ -21,6 +21,7 @@ export interface ComponentToken {
   text: string;
   className: string;
   styles: Record<string, string>;
+  html?: string;
 }
 
 export interface MotionToken {

@@ -215,6 +215,7 @@ const EXTRACTION_SCRIPT = String.raw`(() => {
         selector,
         text: normalizeWhitespace(el.textContent || '').slice(0, 90),
         className: typeof el.className === 'string' ? normalizeWhitespace(el.className) : '',
+        html: el.outerHTML.slice(0, 2048),
         styles: {
           color: style.color,
           backgroundColor: style.backgroundColor,
