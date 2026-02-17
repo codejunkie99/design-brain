@@ -1,0 +1,13 @@
+{
+  "PostToolUse": [
+    {
+      "matcher": "Write|Edit",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "echo \"Design Brain hint: run design-brain-memory reindex when wiki docs change.\""
+        }
+      ]
+    }
+  ]
+}
