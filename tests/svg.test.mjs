@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { generatePaletteSvg, generateComponentsSvg } from '../dist/svg.js';
+import { generatePaletteSvg, generateComponentsSvg, generateTypographySvg } from '../dist/svg.js';
 
 test('generatePaletteSvg returns valid SVG with color rects', () => {
   const colors = [
@@ -49,4 +49,27 @@ test('generateComponentsSvg handles empty components', () => {
 
   assert.ok(svg.startsWith('<svg'));
   assert.ok(svg.includes('No components'));
+});
+
+test('generateTypographySvg groups by font family', () => {
+  const typography = [
+    { fontFamily: 'Inter', fontSize: '32px', fontWeight: '700', lineHeight: '1.2', count: 8 },
+    { fontFamily: 'Inter', fontSize: '16px', fontWeight: '400', lineHeight: '1.5', count: 24 },
+    { fontFamily: 'Roboto Mono', fontSize: '14px', fontWeight: '400', lineHeight: '1.6', count: 5 },
+  ];
+
+  const svg = generateTypographySvg(typography, 'Test Project');
+
+  assert.ok(svg.startsWith('<svg'));
+  assert.ok(svg.includes('Inter'));
+  assert.ok(svg.includes('Roboto Mono'));
+  assert.ok(svg.includes('32px'));
+  assert.ok(svg.includes('700'));
+});
+
+test('generateTypographySvg handles empty typography', () => {
+  const svg = generateTypographySvg([], 'Empty');
+
+  assert.ok(svg.startsWith('<svg'));
+  assert.ok(svg.includes('No typography'));
 });
