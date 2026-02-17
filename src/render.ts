@@ -7,6 +7,7 @@ import {
   generateTypographySvg,
   generateLayoutSvg,
 } from './svg.js';
+import { generateComponentTokens } from './tokens.js';
 import { csvEscape, relPath, truncate, unique } from './util.js';
 import type {
   ColorToken,
@@ -436,6 +437,15 @@ export async function renderAll(rootDir: string, db: DesignBrainDatabase, skipVi
     await fs.writeFile(path.join(tokenDir, 'layout.md'), tokenFiles.layout);
 
     await renderVisuals(baseDir, project, skipVisuals);
+
+    if (!skipVisuals) {
+      const componentTokenDir = path.join(tokenDir, 'components');
+      await fs.ensureDir(componentTokenDir);
+      const componentTokens = generateComponentTokens(project);
+      for (const [kind, tokenFile] of Object.entries(componentTokens)) {
+        await fs.writeJson(path.join(componentTokenDir, `${kind}.json`), tokenFile, { spaces: 2 });
+      }
+    }
 
     const projectIndex = path.join(baseDir, 'index.md');
     const from = path.dirname(projectIndex);
