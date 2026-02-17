@@ -1,6 +1,12 @@
 import path from 'node:path';
 import fs from 'fs-extra';
 import { brainRoot, projectDir } from './store.js';
+import {
+  generatePaletteSvg,
+  generateComponentsSvg,
+  generateTypographySvg,
+  generateLayoutSvg,
+} from './svg.js';
 import { csvEscape, relPath, truncate, unique } from './util.js';
 import type {
   ColorToken,
@@ -105,6 +111,11 @@ function renderProjectReadme(project: ProjectRecord): string {
     + `- [Components](./tokens/components.md)\n`
     + `- [Motion](./tokens/motion.md)\n`
     + `- [Layout](./tokens/layout.md)\n\n`
+    + `## Visual Catalog\n\n`
+    + `![Color Palette](./visuals/palette.svg)\n`
+    + `![Component Inventory](./visuals/components.svg)\n`
+    + `![Typography Specimen](./visuals/typography.svg)\n`
+    + `![Layout Structure](./visuals/layout.svg)\n\n`
     + `## Inspirations\n\n${inspirationLinks}\n\n`
     + `## Outcomes\n\n${outcomeLinks}\n`;
 }
@@ -196,6 +207,11 @@ function renderInspiration(record: InspirationRecord, projectId: string): string
     + `${responsiveRows.length > 0 ? `## Responsive Coverage\n\n${mdTable(['Viewport', 'Size', 'Colors', 'Typography', 'Components', 'Title'], responsiveRows)}\n\n` : ''}`
     + `${stateRows.length > 0 ? `## Interaction States\n\n${mdTable(['Selector', 'State', 'Declarations'], stateRows)}\n\n` : ''}`
     + `${journeyRows.length > 0 ? `## Journey Capture\n\n${mdTable(['Step', 'Action', 'From', 'To', 'Summary'], journeyRows)}\n\n` : ''}`
+    + `## Visual Catalog\n\n`
+    + `![Color Palette](./${record.id}/palette.svg)\n`
+    + `![Component Inventory](./${record.id}/components.svg)\n`
+    + `![Typography Specimen](./${record.id}/typography.svg)\n`
+    + `![Layout Structure](./${record.id}/layout.svg)\n\n`
     + `## Colors\n\n${mdTable(['Hex', 'Weight', 'Samples'], colorsRows)}\n\n`
     + `## Typography\n\n${mdTable(['Font', 'Size', 'Weight', 'Line Height', 'Weight'], typeRows)}\n\n`
     + `## Components\n\n${mdTable(['Kind', 'Selector', 'Tag', 'Text', 'Class'], componentRows)}\n\n`
@@ -355,7 +371,38 @@ function renderGraphFiles(db: DesignBrainDatabase): { entities: string; relation
   };
 }
 
-export async function renderAll(rootDir: string, db: DesignBrainDatabase): Promise<void> {
+async function renderVisuals(
+  baseDir: string,
+  project: ProjectRecord,
+  skipVisuals: boolean,
+): Promise<void> {
+  if (skipVisuals) return;
+
+  const visualDir = path.join(baseDir, 'visuals');
+  await fs.ensureDir(visualDir);
+
+  const colors = aggregateColors(project.inspirations);
+  const components = aggregateComponents(project.inspirations);
+  const typography = aggregateTypography(project.inspirations);
+  const layout = project.inspirations.at(-1)?.analysis.layout ?? [];
+
+  await fs.writeFile(path.join(visualDir, 'palette.svg'), generatePaletteSvg(colors, project.name));
+  await fs.writeFile(path.join(visualDir, 'components.svg'), generateComponentsSvg(components, project.name));
+  await fs.writeFile(path.join(visualDir, 'typography.svg'), generateTypographySvg(typography, project.name));
+  await fs.writeFile(path.join(visualDir, 'layout.svg'), generateLayoutSvg(layout, project.name));
+
+  for (const inspiration of project.inspirations) {
+    const inspoVisualDir = path.join(baseDir, 'inspirations', inspiration.id);
+    await fs.ensureDir(inspoVisualDir);
+
+    await fs.writeFile(path.join(inspoVisualDir, 'palette.svg'), generatePaletteSvg(inspiration.analysis.colors, inspiration.name));
+    await fs.writeFile(path.join(inspoVisualDir, 'components.svg'), generateComponentsSvg(inspiration.analysis.components, inspiration.name));
+    await fs.writeFile(path.join(inspoVisualDir, 'typography.svg'), generateTypographySvg(inspiration.analysis.typography, inspiration.name));
+    await fs.writeFile(path.join(inspoVisualDir, 'layout.svg'), generateLayoutSvg(inspiration.analysis.layout, inspiration.name));
+  }
+}
+
+export async function renderAll(rootDir: string, db: DesignBrainDatabase, skipVisuals = false): Promise<void> {
   const root = brainRoot(rootDir);
   await fs.ensureDir(root);
 
@@ -387,6 +434,8 @@ export async function renderAll(rootDir: string, db: DesignBrainDatabase): Promi
     await fs.writeFile(path.join(tokenDir, 'components.md'), tokenFiles.components);
     await fs.writeFile(path.join(tokenDir, 'motion.md'), tokenFiles.motion);
     await fs.writeFile(path.join(tokenDir, 'layout.md'), tokenFiles.layout);
+
+    await renderVisuals(baseDir, project, skipVisuals);
 
     const projectIndex = path.join(baseDir, 'index.md');
     const from = path.dirname(projectIndex);
