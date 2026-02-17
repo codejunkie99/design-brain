@@ -1,4 +1,5 @@
-import type { ColorToken } from './types.js';
+import type { ColorToken, ComponentToken } from './types.js';
+import { truncate } from './util.js';
 
 function escapeXml(text: string): string {
   return text
@@ -50,5 +51,70 @@ export function generatePaletteSvg(colors: ColorToken[], title: string): string 
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}">\n`
     + `  <text x="${SWATCH_GAP}" y="24" font-family="${FONT}" font-size="16" font-weight="600" fill="#111">${escapeXml(title)} — Color Palette</text>\n`
     + rects.join('\n')
+    + `\n</svg>`;
+}
+
+const COMP_GROUP_W = 220;
+const COMP_ITEM_H = 52;
+const COMP_GAP = 16;
+
+export function generateComponentsSvg(components: ComponentToken[], title: string): string {
+  if (components.length === 0) {
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 60">\n`
+      + `  <text x="10" y="30" font-family="${FONT}" font-size="14" fill="#888">No components captured</text>\n`
+      + `</svg>`;
+  }
+
+  const groups = new Map<string, ComponentToken[]>();
+  for (const comp of components) {
+    const list = groups.get(comp.kind) ?? [];
+    list.push(comp);
+    groups.set(comp.kind, list);
+  }
+
+  const sortedGroups = [...groups.entries()].sort((a, b) => b[1].length - a[1].length);
+
+  const colOffsets = [COMP_GAP, COMP_GROUP_W + COMP_GAP * 2];
+  const colHeights = [50, 50];
+  const groupSvgs: string[] = [];
+
+  for (const [kind, items] of sortedGroups) {
+    const col = colHeights[0] <= colHeights[1] ? 0 : 1;
+    const x = colOffsets[col];
+    let y = colHeights[col];
+
+    groupSvgs.push(
+      `  <text x="${x}" y="${y + 16}" font-family="${FONT}" font-size="13" font-weight="600" fill="#333">${escapeXml(kind)} (${items.length})</text>`
+    );
+    y += 24;
+
+    const visible = items.slice(0, 8);
+    const boxH = visible.length * COMP_ITEM_H + 8;
+    groupSvgs.push(
+      `  <rect x="${x}" y="${y}" width="${COMP_GROUP_W}" height="${boxH}" fill="none" stroke="#ddd" rx="6"/>`
+    );
+
+    for (let idx = 0; idx < visible.length; idx++) {
+      const item = visible[idx];
+      groupSvgs.push(
+        `  <text x="${x + 8}" y="${y + 18}" font-family="${FONT}" font-size="11" fill="#555">&lt;${escapeXml(item.tag)}&gt;</text>`,
+        `  <text x="${x + 8}" y="${y + 32}" font-family="monospace" font-size="10" fill="#888">${escapeXml(item.selector)}</text>`,
+        `  <text x="${x + 8}" y="${y + 44}" font-family="${FONT}" font-size="10" fill="#aaa">${escapeXml(truncate(item.text || '-', 30))}</text>`,
+      );
+      y += COMP_ITEM_H;
+      if (idx < visible.length - 1) {
+        groupSvgs.push(`  <line x1="${x + 8}" y1="${y}" x2="${x + COMP_GROUP_W - 8}" y2="${y}" stroke="#eee"/>`);
+      }
+    }
+
+    colHeights[col] = y + boxH / visible.length + COMP_GAP;
+  }
+
+  const height = Math.max(...colHeights) + 10;
+  const width = colOffsets[1] + COMP_GROUP_W + COMP_GAP;
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}">\n`
+    + `  <text x="${COMP_GAP}" y="28" font-family="${FONT}" font-size="16" font-weight="600" fill="#111">${escapeXml(title)} — Component Inventory</text>\n`
+    + groupSvgs.join('\n')
     + `\n</svg>`;
 }
