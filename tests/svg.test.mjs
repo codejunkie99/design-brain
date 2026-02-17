@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { generatePaletteSvg, generateComponentsSvg, generateTypographySvg } from '../dist/svg.js';
+import { generatePaletteSvg, generateComponentsSvg, generateTypographySvg, generateLayoutSvg } from '../dist/svg.js';
 
 test('generatePaletteSvg returns valid SVG with color rects', () => {
   const colors = [
@@ -72,4 +72,28 @@ test('generateTypographySvg handles empty typography', () => {
 
   assert.ok(svg.startsWith('<svg'));
   assert.ok(svg.includes('No typography'));
+});
+
+test('generateLayoutSvg renders layout boxes', () => {
+  const layout = [
+    { tag: 'header', selector: '.site-header', role: 'banner', children: 3 },
+    { tag: 'main', selector: '.content', role: 'main', children: 2 },
+    { tag: 'aside', selector: '.sidebar', role: 'complementary', children: 4 },
+    { tag: 'footer', selector: '.site-footer', role: 'contentinfo', children: 3 },
+  ];
+
+  const svg = generateLayoutSvg(layout, 'Test Project');
+
+  assert.ok(svg.startsWith('<svg'));
+  assert.ok(svg.includes('header'));
+  assert.ok(svg.includes('main'));
+  assert.ok(svg.includes('.site-header'));
+  assert.ok(svg.includes('banner'));
+});
+
+test('generateLayoutSvg handles empty layout', () => {
+  const svg = generateLayoutSvg([], 'Empty');
+
+  assert.ok(svg.startsWith('<svg'));
+  assert.ok(svg.includes('No layout'));
 });
