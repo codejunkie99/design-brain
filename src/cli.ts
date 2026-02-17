@@ -59,7 +59,7 @@ async function main(): Promise<void> {
   program
     .name('design-brain-memory')
     .description('Relational markdown design memory powered by Agent Browser CLI')
-    .version('0.2.0')
+    .version('0.3.0')
     .option('-y, --yes', 'Skip interactive prompts');
 
   program
