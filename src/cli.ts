@@ -90,6 +90,7 @@ async function main(): Promise<void> {
     .option('--llm-model <model>', 'LLM model id')
     .option('--llm-timeout-ms <ms>', 'LLM timeout in milliseconds', '30000')
     .option('--root <dir>', 'Workspace root', process.cwd())
+    .option('--no-visuals', 'Skip SVG visual generation')
     .action(async (options: {
       project: string;
       projectName?: string;
@@ -107,6 +108,7 @@ async function main(): Promise<void> {
       llmModel?: string;
       llmTimeoutMs: string;
       root: string;
+      visuals: boolean;
     }) => {
       const llm = resolveLlmConfig({
         baseUrl: options.llmBaseUrl,
@@ -129,6 +131,7 @@ async function main(): Promise<void> {
         llm,
         journeySteps: parseInteger(options.journeySteps, 3),
         responsiveViewports: parseViewports(options.viewport),
+        skipVisuals: !options.visuals,
       });
 
       console.log(`Captured inspiration ${result.inspirationId} in project ${result.projectId}`);
@@ -268,8 +271,9 @@ async function main(): Promise<void> {
     .command('reindex')
     .description('Regenerate markdown wiki and relation graph from database.json')
     .option('--root <dir>', 'Workspace root', process.cwd())
-    .action(async (options: { root: string }) => {
-      await reindexBrain(path.resolve(options.root));
+    .option('--no-visuals', 'Skip SVG visual generation')
+    .action(async (options: { root: string; visuals: boolean }) => {
+      await reindexBrain(path.resolve(options.root), !options.visuals);
       console.log(`Reindexed ${path.resolve(options.root, '.design-brain')}`);
     });
 

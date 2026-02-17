@@ -177,7 +177,7 @@ export async function ingestInspiration(options: IngestOptions): Promise<{ proje
 
   project.updatedAt = nowIso();
   await saveDatabase(options.rootDir, db);
-  await renderAll(options.rootDir, db);
+  await renderAll(options.rootDir, db, options.skipVisuals);
 
   return { projectId: project.id, inspirationId };
 }
@@ -219,9 +219,9 @@ export async function recordOutcome(options: OutcomeOptions): Promise<{ projectI
   return { projectId: project.id, outcomeId };
 }
 
-export async function reindexBrain(rootDir: string): Promise<void> {
+export async function reindexBrain(rootDir: string, skipVisuals = false): Promise<void> {
   const db = await loadDatabase(rootDir);
-  await renderAll(rootDir, db);
+  await renderAll(rootDir, db, skipVisuals);
 }
 
 export async function searchBrain(params: {
