@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import path from 'node:path';
 import { Command } from 'commander';
+import { batchCapture } from './batch.js';
 import {
   askBrain,
   compareCaptures,
@@ -313,6 +314,26 @@ async function main(): Promise<void> {
         inspo: options.inspo,
       });
       console.log(`Comparison written to ${outPath}`);
+    });
+
+  program
+    .command('batch')
+    .description('Batch capture from a file of URLs')
+    .requiredOption('--project <project>', 'Project ID/slug')
+    .requiredOption('--file <path>', 'Path to URL list file (tab-separated: URL, name, tags)')
+    .option('--root <dir>', 'Workspace root', process.cwd())
+    .option('--no-visuals', 'Skip SVG visual generation')
+    .action(async (options: { project: string; file: string; root: string; visuals: boolean }) => {
+      const result = await batchCapture({
+        rootDir: path.resolve(options.root),
+        project: options.project,
+        filePath: path.resolve(options.file),
+        skipVisuals: !options.visuals,
+      });
+      console.log(`Batch complete: ${result.succeeded}/${result.total} captured`);
+      if (result.failed.length > 0) {
+        console.log(`Failed: ${result.failed.join(', ')}`);
+      }
     });
 
   await program.parseAsync(process.argv);

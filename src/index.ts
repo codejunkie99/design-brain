@@ -1,3 +1,4 @@
+export { batchCapture, parseBatchFile } from './batch.js';
 export {
   askBrain,
   compareCaptures,
