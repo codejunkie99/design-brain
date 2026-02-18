@@ -1,7 +1,7 @@
 ---
 name: db-export
-description: Export design tokens as Tailwind config or other formats
-argument-hint: "<project-id> [--format tailwind]"
+description: Export design tokens as Tailwind config or Style Dictionary format
+argument-hint: "<project-id> [--format tailwind|style-dictionary]"
 allowed-tools:
   - Bash
   - Read
@@ -17,13 +17,17 @@ Export captured design tokens to usable formats.
 design-brain-memory export --project "$1" --format tailwind
 ```
 
-This generates a `tailwind.config.js` at `.design-brain/projects/<project>/tailwind.config.js` with:
-- Colors extracted from CSS variables and color tokens (auto-named from var names)
-- Typography (font families and sizes)
+Generates `tailwind.config.js` with colors, typography, and font sizes.
 
-After export, read the generated file and summarize:
-- Number of color tokens
-- Number of font families
-- Number of font sizes
+## Style Dictionary
 
-Suggest: "Copy to your project root or import from this path in your Tailwind config."
+```bash
+design-brain-memory export --project "$1" --format style-dictionary
+```
+
+Generates `tokens.json` in Amazon Style Dictionary format with:
+- Color tokens (from CSS variables and color tokens)
+- Font family and size tokens
+- Motion tokens (durations and easing curves)
+
+After export, read the generated file and summarize the token counts per category.
