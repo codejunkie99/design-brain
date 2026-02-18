@@ -1,7 +1,7 @@
 {
   "name": "design-brain",
-  "version": "0.2.0",
-  "description": "Design memory plugin that builds relational markdown design brains using Agent Browser CLI",
+  "version": "0.6.0",
+  "description": "Design knowledge system with processing pipeline, hooks, and persistent memory. Captures inspiration, extracts patterns/decisions/principles, synthesizes connections, and evolves knowledge over time.",
   "author": {
     "name": "design-brain",
     "github": "https://github.com/design-brain"
@@ -12,7 +12,10 @@
     "agent-browser",
     "inspiration",
     "markdown",
-    "knowledge-base"
+    "knowledge-base",
+    "knowledge-graph",
+    "second-brain",
+    "design-tokens"
   ],
   "license": "MIT",
   "repository": "https://github.com/design-brain/design-brain"
