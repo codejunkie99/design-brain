@@ -1,5 +1,6 @@
 export {
   askBrain,
+  exportDesignSystem,
   initBrain,
   ingestInspiration,
   recordOutcome,
@@ -7,6 +8,7 @@ export {
   searchBrain,
 } from './commands.js';
 export { askDesignBrain, searchDesignBrain } from './query.js';
+export { generateStyleDictionary } from './styleDictionary.js';
 export type {
   ColorToken,
   ComponentToken,
