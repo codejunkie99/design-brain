@@ -6,6 +6,7 @@ import {
   askBrain,
   compareCaptures,
   exportDesignSystem,
+  generateMoodboard,
   initBrain,
   ingestInspiration,
   recordOutcome,
@@ -334,6 +335,19 @@ async function main(): Promise<void> {
       if (result.failed.length > 0) {
         console.log(`Failed: ${result.failed.join(', ')}`);
       }
+    });
+
+  program
+    .command('moodboard')
+    .description('Generate visual moodboard from project captures')
+    .requiredOption('--project <project>', 'Project ID/slug')
+    .option('--root <dir>', 'Workspace root', process.cwd())
+    .action(async (options: { project: string; root: string }) => {
+      const outPath = await generateMoodboard({
+        rootDir: path.resolve(options.root),
+        project: options.project,
+      });
+      console.log(`Moodboard generated at ${outPath}`);
     });
 
   await program.parseAsync(process.argv);

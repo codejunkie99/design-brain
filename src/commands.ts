@@ -2,6 +2,7 @@ import path from 'node:path';
 import fs from 'fs-extra';
 import { compareInspirations, renderComparison } from './compare.js';
 import { captureDesignFromImage } from './extractFromImage.js';
+import { generateMoodboardHtml, generateMoodboardSvg } from './moodboard.js';
 import { captureDesignFromUrl } from './extractFromUrl.js';
 import { enrichWithLlm } from './llm.js';
 import { askDesignBrain, searchDesignBrain } from './query.js';
@@ -339,4 +340,37 @@ export async function compareCaptures(params: {
   await fs.writeFile(outPath, md);
 
   return outPath;
+}
+
+export async function generateMoodboard(params: {
+  rootDir: string;
+  project: string;
+}): Promise<string> {
+  const db = await loadDatabase(params.rootDir);
+  const project = db.projects.find((p) => p.id === params.project);
+  if (!project) {
+    throw new Error(`Project not found: ${params.project}`);
+  }
+
+  const baseDir = projectDir(params.rootDir, project.id);
+  await fs.ensureDir(baseDir);
+
+  const html = generateMoodboardHtml(project);
+  const htmlPath = path.join(baseDir, 'moodboard.html');
+  await fs.writeFile(htmlPath, html);
+
+  const svg = generateMoodboardSvg(project);
+  const svgPath = path.join(baseDir, 'moodboard.svg');
+  await fs.writeFile(svgPath, svg);
+
+  // Try PNG via sharp, skip silently if not available
+  try {
+    const sharp = (await import('sharp')).default;
+    const pngPath = path.join(baseDir, 'moodboard.png');
+    await sharp(Buffer.from(svg)).png().toFile(pngPath);
+  } catch {
+    // sharp not available or SVG conversion failed — HTML is still usable
+  }
+
+  return htmlPath;
 }
