@@ -8,6 +8,7 @@ import {
   generateLayoutSvg,
 } from './svg.js';
 import { generateComponentTokens } from './tokens.js';
+import { generateTailwindConfig } from './tailwind.js';
 import { csvEscape, relPath, truncate, unique } from './util.js';
 import type {
   ColorToken,
@@ -112,6 +113,8 @@ function renderProjectReadme(project: ProjectRecord): string {
     + `- [Components](./tokens/components.md)\n`
     + `- [Motion](./tokens/motion.md)\n`
     + `- [Layout](./tokens/layout.md)\n\n`
+    + `## Exports\n\n`
+    + `- [Tailwind Config](./tailwind.config.js)\n\n`
     + `## Visual Catalog\n\n`
     + `![Color Palette](./visuals/palette.svg)\n`
     + `![Component Inventory](./visuals/components.svg)\n`
@@ -446,6 +449,9 @@ export async function renderAll(rootDir: string, db: DesignBrainDatabase, skipVi
         await fs.writeJson(path.join(componentTokenDir, `${kind}.json`), tokenFile, { spaces: 2 });
       }
     }
+
+    const tailwindConfig = generateTailwindConfig(project);
+    await fs.writeFile(path.join(baseDir, 'tailwind.config.js'), tailwindConfig);
 
     const projectIndex = path.join(baseDir, 'index.md');
     const from = path.dirname(projectIndex);
