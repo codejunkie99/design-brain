@@ -7,12 +7,20 @@ import {
   compareCaptures,
   detectAndWriteTrends,
   exportDesignSystem,
+  generateComponentGraphCmd,
   generateMoodboard,
+  generateReviewChecklist,
   initBrain,
   ingestInspiration,
+  nameTokensCmd,
   recordOutcome,
   reindexBrain,
+  runSystemDiff,
   searchBrain,
+  analyzeWritingStyleCmd,
+  buildGraphView,
+  buildWiki,
+  generateContext,
 } from './commands.js';
 import { runScorecard } from './scorecard.js';
 import { shouldSkipPrompts } from './interactive.js';
@@ -65,7 +73,7 @@ async function main(): Promise<void> {
   program
     .name('design-brain-memory')
     .description('Relational markdown design memory powered by Agent Browser CLI')
-    .version('0.6.0')
+    .version('0.7.0')
     .option('-y, --yes', 'Skip interactive prompts');
 
   program
@@ -287,7 +295,7 @@ async function main(): Promise<void> {
     .command('export')
     .description('Export design system from captured data')
     .requiredOption('--project <project>', 'Project ID/slug')
-    .option('--format <format>', 'Export format (tailwind, style-dictionary)', 'tailwind')
+    .option('--format <format>', 'Export format (tailwind, style-dictionary, css-in-js)', 'tailwind')
     .option('--root <dir>', 'Workspace root', process.cwd())
     .action(async (options: {
       project: string;
@@ -378,6 +386,118 @@ async function main(): Promise<void> {
         scanPath: path.resolve(options.scan),
       });
       console.log(`Scorecard written to ${outPath}`);
+    });
+
+  program
+    .command('component-graph')
+    .description('Generate component relationship graph for a project')
+    .requiredOption('--project <project>', 'Project ID/slug')
+    .option('--root <dir>', 'Workspace root', process.cwd())
+    .action(async (options: { project: string; root: string }) => {
+      const outPath = await generateComponentGraphCmd({
+        rootDir: path.resolve(options.root),
+        project: options.project,
+      });
+      console.log(`Component graph written to ${outPath}`);
+    });
+
+  program
+    .command('review')
+    .description('Generate design review checklist')
+    .requiredOption('--project <project>', 'Project ID/slug')
+    .option('--scan <path>', 'Directory to scan for codebase audit')
+    .option('--root <dir>', 'Workspace root', process.cwd())
+    .action(async (options: { project: string; scan?: string; root: string }) => {
+      const outPath = await generateReviewChecklist({
+        rootDir: path.resolve(options.root),
+        project: options.project,
+        scanPath: options.scan ? path.resolve(options.scan) : undefined,
+      });
+      console.log(`Review checklist written to ${outPath}`);
+    });
+
+  program
+    .command('name-tokens')
+    .description('Preview human-readable token names for a project')
+    .requiredOption('--project <project>', 'Project ID/slug')
+    .option('--root <dir>', 'Workspace root', process.cwd())
+    .action(async (options: { project: string; root: string }) => {
+      const map = await nameTokensCmd({
+        rootDir: path.resolve(options.root),
+        project: options.project,
+      });
+      for (const [raw, name] of map) {
+        console.log(`${raw} → ${name}`);
+      }
+      console.log(`\n${map.size} tokens named`);
+    });
+
+  program
+    .command('wiki')
+    .description('Generate design wiki with per-project pages and shared context space')
+    .option('--root <dir>', 'Workspace root', process.cwd())
+    .action(async (options: { root: string }) => {
+      const result = await buildWiki({
+        rootDir: path.resolve(options.root),
+      });
+      console.log(`Wiki generated: ${result.projectPages} project pages, ${result.sharedTokens} shared tokens`);
+      console.log(`Browse at ${result.wikiDir}`);
+    });
+
+  program
+    .command('graph')
+    .description('Generate interactive knowledge graph visualization')
+    .option('--root <dir>', 'Workspace root', process.cwd())
+    .action(async (options: { root: string }) => {
+      const outPath = await buildGraphView({
+        rootDir: path.resolve(options.root),
+      });
+      console.log(`Knowledge graph generated at ${outPath}`);
+      console.log('Open in your browser to explore.');
+    });
+
+  program
+    .command('context')
+    .description('Generate design context file for AI tools (Claude Code, Cursor)')
+    .option('--project <project>', 'Project ID (omit for unified cross-project context)')
+    .option('--root <dir>', 'Workspace root', process.cwd())
+    .action(async (options: { project?: string; root: string }) => {
+      const outPath = await generateContext({
+        rootDir: path.resolve(options.root),
+        project: options.project,
+      });
+      console.log(`Design context written to ${outPath}`);
+      console.log('Drop this file into .claude/ or .cursorrules for AI-assisted development.');
+    });
+
+  program
+    .command('writing-style')
+    .description('Analyze writing style patterns across captured content')
+    .requiredOption('--project <project>', 'Project ID/slug')
+    .option('--root <dir>', 'Workspace root', process.cwd())
+    .action(async (options: { project: string; root: string }) => {
+      const outPath = await analyzeWritingStyleCmd({
+        rootDir: path.resolve(options.root),
+        project: options.project,
+      });
+      console.log(`Writing style analysis written to ${outPath}`);
+    });
+
+  program
+    .command('system-diff')
+    .description('Diff design systems between projects or over time')
+    .option('--project <project>', 'Project ID for temporal diff')
+    .option('--project-a <project>', 'First project for cross-project diff')
+    .option('--project-b <project>', 'Second project for cross-project diff')
+    .option('--root <dir>', 'Workspace root', process.cwd())
+    .action(async (options: { project?: string; projectA?: string; projectB?: string; root: string }) => {
+      const outPath = await runSystemDiff({
+        rootDir: path.resolve(options.root),
+        project: options.project,
+        projectA: options.projectA,
+        projectB: options.projectB,
+      });
+      console.log(`System diff written to ${outPath}`);
     });
 
   await program.parseAsync(process.argv);
