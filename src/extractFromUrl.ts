@@ -235,12 +235,46 @@ const EXTRACTION_SCRIPT = String.raw`(() => {
     const hasTransform = style.transform && style.transform !== 'none';
 
     if ((hasTransition || hasAnimation || hasTransform) && motionList.length < maxMotion) {
-      motionList.push({
+      const motionEntry = {
         selector,
         transition: style.transition,
         animation: style.animation,
         transform: style.transform,
-      });
+      };
+
+      if (hasTransition) {
+        const props = style.transitionProperty.split(',').map(s => s.trim());
+        const durs = style.transitionDuration.split(',').map(s => s.trim());
+        const funcs = style.transitionTimingFunction.split(',').map(s => s.trim());
+        const delays = style.transitionDelay.split(',').map(s => s.trim());
+        motionEntry.transitions = props.map((p, i) => ({
+          property: p,
+          duration: durs[i % durs.length] || '0s',
+          timingFunction: funcs[i % funcs.length] || 'ease',
+          delay: delays[i % delays.length] || '0s',
+        }));
+      }
+
+      if (hasAnimation) {
+        const names = style.animationName.split(',').map(s => s.trim());
+        const durs = style.animationDuration.split(',').map(s => s.trim());
+        const funcs = style.animationTimingFunction.split(',').map(s => s.trim());
+        const delays = style.animationDelay.split(',').map(s => s.trim());
+        const iters = style.animationIterationCount.split(',').map(s => s.trim());
+        const dirs = style.animationDirection.split(',').map(s => s.trim());
+        const fills = style.animationFillMode.split(',').map(s => s.trim());
+        motionEntry.animations = names.map((n, i) => ({
+          name: n,
+          duration: durs[i % durs.length] || '0s',
+          timingFunction: funcs[i % funcs.length] || 'ease',
+          delay: delays[i % delays.length] || '0s',
+          iterationCount: iters[i % iters.length] || '1',
+          direction: dirs[i % dirs.length] || 'normal',
+          fillMode: fills[i % fills.length] || 'none',
+        }));
+      }
+
+      motionList.push(motionEntry);
     }
   });
 
@@ -304,6 +338,35 @@ const EXTRACTION_SCRIPT = String.raw`(() => {
 
   addPseudoStateStyles();
 
+  const keyframeList = [];
+  const seenKeyframes = new Set();
+  const maxKeyframes = 60;
+
+  for (const sheet of Array.from(document.styleSheets)) {
+    let rules;
+    try { rules = sheet.cssRules; } catch { continue; }
+    if (!rules) continue;
+
+    for (const rule of Array.from(rules)) {
+      if (rule.constructor.name !== 'CSSKeyframesRule') continue;
+      const kfRule = rule;
+      const name = kfRule.name;
+      if (seenKeyframes.has(name) || keyframeList.length >= maxKeyframes) continue;
+      seenKeyframes.add(name);
+
+      const steps = [];
+      for (const kf of Array.from(kfRule.cssRules)) {
+        const declarations = {};
+        for (let i = 0; i < kf.style.length; i++) {
+          const prop = kf.style[i];
+          declarations[prop] = kf.style.getPropertyValue(prop);
+        }
+        steps.push({ offset: kf.keyText, declarations });
+      }
+      keyframeList.push({ name, steps });
+    }
+  }
+
   const colors = Array.from(colorMap.values()).sort((a, b) => b.count - a.count).slice(0, 70);
   const typography = Array.from(typographyMap.values()).sort((a, b) => b.count - a.count).slice(0, 90);
 
@@ -318,6 +381,7 @@ const EXTRACTION_SCRIPT = String.raw`(() => {
     typography,
     components: componentList,
     motion: motionList,
+    keyframes: keyframeList,
     layout: layoutList,
     cssVariables: variableMap,
     stateStyles: stateStyleList,
@@ -344,6 +408,7 @@ function normalizeResult(result: Record<string, unknown>): DesignAnalysis {
     typography: (result.typography as DesignAnalysis['typography']) ?? [],
     components: (result.components as DesignAnalysis['components']) ?? [],
     motion: (result.motion as DesignAnalysis['motion']) ?? [],
+    keyframes: (result.keyframes as DesignAnalysis['keyframes']) ?? [],
     layout: (result.layout as DesignAnalysis['layout']) ?? [],
     cssVariables: (result.cssVariables as DesignAnalysis['cssVariables']) ?? {},
     stateStyles: (result.stateStyles as DesignAnalysis['stateStyles']) ?? [],
@@ -386,6 +451,7 @@ function mergeAnalysis(all: DesignAnalysis[]): DesignAnalysis {
 
   const componentMap = new Map<string, DesignAnalysis['components'][number]>();
   const motionMap = new Map<string, DesignAnalysis['motion'][number]>();
+  const keyframeMap = new Map<string, NonNullable<DesignAnalysis['keyframes']>[number]>();
   const layoutMap = new Map<string, DesignAnalysis['layout'][number]>();
   const stateMap = new Map<string, StateStyleToken>();
   const cssVariables: Record<string, string> = {};
@@ -404,6 +470,12 @@ function mergeAnalysis(all: DesignAnalysis[]): DesignAnalysis {
       const key = `${motion.selector}|${motion.transition}|${motion.animation}|${motion.transform}`;
       if (!motionMap.has(key)) {
         motionMap.set(key, motion);
+      }
+    }
+
+    for (const kf of entry.keyframes ?? []) {
+      if (!keyframeMap.has(kf.name)) {
+        keyframeMap.set(kf.name, kf);
       }
     }
 
@@ -430,6 +502,7 @@ function mergeAnalysis(all: DesignAnalysis[]): DesignAnalysis {
     typography: [...typographyMap.values()].sort((a, b) => b.count - a.count).slice(0, 120),
     components: [...componentMap.values()].slice(0, 260),
     motion: [...motionMap.values()].slice(0, 260),
+    keyframes: [...keyframeMap.values()].slice(0, 80),
     layout: [...layoutMap.values()].slice(0, 220),
     cssVariables,
     stateStyles: [...stateMap.values()].slice(0, 300),
