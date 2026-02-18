@@ -3,6 +3,7 @@ import fs from 'fs-extra';
 import { compareInspirations, renderComparison } from './compare.js';
 import { captureDesignFromImage } from './extractFromImage.js';
 import { generateMoodboardHtml, generateMoodboardSvg } from './moodboard.js';
+import { detectTrends, writeTrendNotes } from './trends.js';
 import { captureDesignFromUrl } from './extractFromUrl.js';
 import { enrichWithLlm } from './llm.js';
 import { askDesignBrain, searchDesignBrain } from './query.js';
@@ -373,4 +374,25 @@ export async function generateMoodboard(params: {
   }
 
   return htmlPath;
+}
+
+export async function detectAndWriteTrends(params: {
+  rootDir: string;
+  project?: string;
+}): Promise<{ trends: number; written: number }> {
+  const db = await loadDatabase(params.rootDir);
+
+  let inspirations: InspirationRecord[];
+  if (params.project) {
+    const project = db.projects.find((p) => p.id === params.project);
+    if (!project) throw new Error(`Project not found: ${params.project}`);
+    inspirations = project.inspirations;
+  } else {
+    inspirations = db.projects.flatMap((p) => p.inspirations);
+  }
+
+  const trends = detectTrends(inspirations);
+  const written = await writeTrendNotes(params.rootDir, trends);
+
+  return { trends: trends.length, written };
 }

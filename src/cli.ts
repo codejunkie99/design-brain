@@ -5,6 +5,7 @@ import { batchCapture } from './batch.js';
 import {
   askBrain,
   compareCaptures,
+  detectAndWriteTrends,
   exportDesignSystem,
   generateMoodboard,
   initBrain,
@@ -348,6 +349,19 @@ async function main(): Promise<void> {
         project: options.project,
       });
       console.log(`Moodboard generated at ${outPath}`);
+    });
+
+  program
+    .command('trends')
+    .description('Detect design trends across captures')
+    .option('--project <project>', 'Filter to project')
+    .option('--root <dir>', 'Workspace root', process.cwd())
+    .action(async (options: { project?: string; root: string }) => {
+      const result = await detectAndWriteTrends({
+        rootDir: path.resolve(options.root),
+        project: options.project,
+      });
+      console.log(`Detected ${result.trends} trends, wrote ${result.written} notes`);
     });
 
   await program.parseAsync(process.argv);
