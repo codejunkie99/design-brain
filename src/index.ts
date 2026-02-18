@@ -3,6 +3,7 @@ export {
   askBrain,
   compareCaptures,
   exportDesignSystem,
+  generateMoodboard,
   initBrain,
   ingestInspiration,
   recordOutcome,
@@ -10,6 +11,7 @@ export {
   searchBrain,
 } from './commands.js';
 export { compareInspirations, renderComparison } from './compare.js';
+export { generateMoodboardHtml, generateMoodboardSvg } from './moodboard.js';
 export { askDesignBrain, searchDesignBrain } from './query.js';
 export { generateStyleDictionary } from './styleDictionary.js';
 export type {
