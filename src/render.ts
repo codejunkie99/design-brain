@@ -147,11 +147,25 @@ function renderInspiration(record: InspirationRecord, projectId: string): string
     truncate(component.className || '-'),
   ]);
 
-  const motionRows = record.analysis.motion.slice(0, 80).map((motion) => [
-    `\`${motion.selector}\``,
-    truncate(motion.transition || 'none'),
-    truncate(motion.animation || 'none'),
-    truncate(motion.transform || 'none'),
+  const motionRows = record.analysis.motion.slice(0, 80).map((motion) => {
+    const transitionDetail = (motion.transitions ?? [])
+      .map((t) => `${t.property} ${t.duration} ${t.timingFunction}${t.delay !== '0s' ? ` ${t.delay}` : ''}`)
+      .join('<br/>');
+    const animationDetail = (motion.animations ?? [])
+      .map((a) => `${a.name} ${a.duration} ${a.timingFunction} ${a.iterationCount}${a.fillMode !== 'none' ? ` ${a.fillMode}` : ''}`)
+      .join('<br/>');
+    return [
+      `\`${motion.selector}\``,
+      truncate(transitionDetail || motion.transition || 'none'),
+      truncate(animationDetail || motion.animation || 'none'),
+      truncate(motion.transform || 'none'),
+    ];
+  });
+
+  const keyframeRows = (record.analysis.keyframes ?? []).slice(0, 40).map((kf) => [
+    `\`${kf.name}\``,
+    `${kf.steps.length}`,
+    kf.steps.map((s) => `${s.offset}: ${truncate(Object.entries(s.declarations).map(([k, v]) => `${k}: ${v}`).join('; '), 80)}`).join('<br/>'),
   ]);
 
   const layoutRows = record.analysis.layout.slice(0, 80).map((layout) => [
@@ -220,6 +234,7 @@ function renderInspiration(record: InspirationRecord, projectId: string): string
     + `## Typography\n\n${mdTable(['Font', 'Size', 'Weight', 'Line Height', 'Weight'], typeRows)}\n\n`
     + `## Components\n\n${mdTable(['Kind', 'Selector', 'Tag', 'Text', 'Class'], componentRows)}\n\n`
     + `## Motion\n\n${mdTable(['Selector', 'Transition', 'Animation', 'Transform'], motionRows)}\n\n`
+    + `${keyframeRows.length > 0 ? `## Keyframes\n\n${mdTable(['Name', 'Steps', 'Declarations'], keyframeRows)}\n\n` : ''}`
     + `## Layout\n\n${mdTable(['Tag', 'Selector', 'Role', 'Children'], layoutRows)}\n\n`
     + `## CSS Variables\n\n${mdTable(['Variable', 'Value'], variablesRows)}\n\n`
     + `${record.analysis.accessibilitySnapshot ? `## Accessibility Snapshot\n\n\`\`\`text\n${record.analysis.accessibilitySnapshot}\n\`\`\`\n` : ''}`;

@@ -24,11 +24,35 @@ export interface ComponentToken {
   html?: string;
 }
 
+export interface TransitionDetail {
+  property: string;
+  duration: string;
+  timingFunction: string;
+  delay: string;
+}
+
+export interface AnimationDetail {
+  name: string;
+  duration: string;
+  timingFunction: string;
+  delay: string;
+  iterationCount: string;
+  direction: string;
+  fillMode: string;
+}
+
+export interface KeyframeRule {
+  name: string;
+  steps: Array<{ offset: string; declarations: Record<string, string> }>;
+}
+
 export interface MotionToken {
   selector: string;
   transition: string;
   animation: string;
   transform: string;
+  transitions?: TransitionDetail[];
+  animations?: AnimationDetail[];
 }
 
 export interface LayoutToken {
@@ -77,6 +101,7 @@ export interface DesignAnalysis {
   typography: TypographyToken[];
   components: ComponentToken[];
   motion: MotionToken[];
+  keyframes?: KeyframeRule[];
   layout: LayoutToken[];
   cssVariables: Record<string, string>;
   accessibilitySnapshot?: string;
