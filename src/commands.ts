@@ -7,6 +7,7 @@ import { askDesignBrain, searchDesignBrain } from './query.js';
 import { renderAll } from './render.js';
 import { generateTailwindConfig } from './tailwind.js';
 import {
+  brainRoot,
   ensureBrainExists,
   ensureProject,
   loadDatabase,
@@ -74,6 +75,17 @@ function mergeTags(...lists: string[][]): string[] {
 
 export async function initBrain(rootDir: string): Promise<void> {
   await ensureBrainExists(rootDir);
+
+  // Create knowledge system directories
+  const root = brainRoot(rootDir);
+  await fs.ensureDir(path.join(root, 'self'));
+  await fs.ensureDir(path.join(root, 'notes', 'patterns'));
+  await fs.ensureDir(path.join(root, 'notes', 'decisions'));
+  await fs.ensureDir(path.join(root, 'notes', 'principles'));
+  await fs.ensureDir(path.join(root, 'notes', 'mocs'));
+  await fs.ensureDir(path.join(root, 'ops', 'queue'));
+  await fs.ensureDir(path.join(root, 'ops', 'sessions'));
+
   const db = await loadDatabase(rootDir);
   await renderAll(rootDir, db);
 }

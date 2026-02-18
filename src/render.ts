@@ -7,6 +7,7 @@ import {
   generateTypographySvg,
   generateLayoutSvg,
 } from './svg.js';
+import { ensureKnowledgeFiles } from './knowledge.js';
 import { generateComponentTokens } from './tokens.js';
 import { generateTailwindConfig } from './tailwind.js';
 import { csvEscape, relPath, truncate, unique } from './util.js';
@@ -425,6 +426,11 @@ export async function renderAll(rootDir: string, db: DesignBrainDatabase, skipVi
   const root = brainRoot(rootDir);
   await fs.ensureDir(root);
 
+  // Ensure knowledge system directories exist
+  for (const dir of ['self', 'notes/patterns', 'notes/decisions', 'notes/principles', 'notes/mocs', 'ops/queue', 'ops/sessions']) {
+    await fs.ensureDir(path.join(root, dir));
+  }
+
   await fs.writeFile(path.join(root, 'README.md'), renderRootReadme(db));
 
   for (const project of db.projects) {
@@ -482,4 +488,7 @@ export async function renderAll(rootDir: string, db: DesignBrainDatabase, skipVi
   const graph = renderGraphFiles(db);
   await fs.writeFile(path.join(root, 'graph', 'entities.csv'), graph.entities);
   await fs.writeFile(path.join(root, 'graph', 'relations.csv'), graph.relations);
+
+  // Generate knowledge system files (self/, notes/mocs/, ops/)
+  await ensureKnowledgeFiles(rootDir, db);
 }
