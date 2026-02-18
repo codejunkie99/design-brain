@@ -215,18 +215,13 @@ export async function ensureKnowledgeFiles(rootDir: string, db: DesignBrainDatab
     await fs.writeFile(methodologyPath, generateMethodology());
   }
 
-  // Generate MOC hub if it doesn't exist
+  // Always regenerate MOC hub and domain MOCs (they reflect current data)
   const hubPath = path.join(root, 'notes', 'mocs', 'hub.md');
-  if (!await fs.pathExists(hubPath)) {
-    await fs.writeFile(hubPath, generateMocHub(db));
-  }
+  await fs.writeFile(hubPath, generateMocHub(db));
 
-  // Generate domain MOCs if they don't exist
   for (const domain of DOMAIN_MOCS) {
     const mocPath = path.join(root, 'notes', 'mocs', `${domain.id}.md`);
-    if (!await fs.pathExists(mocPath)) {
-      await fs.writeFile(mocPath, generateDomainMoc(domain, db));
-    }
+    await fs.writeFile(mocPath, generateDomainMoc(domain, db));
   }
 
   // Generate maintenance file if it doesn't exist
