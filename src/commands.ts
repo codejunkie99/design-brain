@@ -5,11 +5,13 @@ import { captureDesignFromUrl } from './extractFromUrl.js';
 import { enrichWithLlm } from './llm.js';
 import { askDesignBrain, searchDesignBrain } from './query.js';
 import { renderAll } from './render.js';
+import { generateTailwindConfig } from './tailwind.js';
 import {
   ensureBrainExists,
   ensureProject,
   loadDatabase,
   projectAssetDir,
+  projectDir,
   saveDatabase,
 } from './store.js';
 import { makeId, normalizeUrl, nowIso, slugify, stableHash, unique } from './util.js';
@@ -241,4 +243,27 @@ export async function askBrain(params: {
   llm?: LlmConfig;
 }) {
   return askDesignBrain(params);
+}
+
+export async function exportDesignSystem(params: {
+  rootDir: string;
+  project: string;
+  format: string;
+}): Promise<string> {
+  if (params.format !== 'tailwind') {
+    throw new Error(`Unsupported format: ${params.format}. Supported: tailwind`);
+  }
+
+  const db = await loadDatabase(params.rootDir);
+  const project = db.projects.find((p) => p.id === params.project);
+  if (!project) {
+    throw new Error(`Project not found: ${params.project}`);
+  }
+
+  const config = generateTailwindConfig(project);
+  const outPath = path.join(projectDir(params.rootDir, project.id), 'tailwind.config.js');
+  await fs.ensureDir(path.dirname(outPath));
+  await fs.writeFile(outPath, config);
+
+  return outPath;
 }

@@ -3,6 +3,7 @@ import path from 'node:path';
 import { Command } from 'commander';
 import {
   askBrain,
+  exportDesignSystem,
   initBrain,
   ingestInspiration,
   recordOutcome,
@@ -59,7 +60,7 @@ async function main(): Promise<void> {
   program
     .name('design-brain-memory')
     .description('Relational markdown design memory powered by Agent Browser CLI')
-    .version('0.3.1')
+    .version('0.4.0')
     .option('-y, --yes', 'Skip interactive prompts');
 
   program
@@ -275,6 +276,25 @@ async function main(): Promise<void> {
     .action(async (options: { root: string; visuals: boolean }) => {
       await reindexBrain(path.resolve(options.root), !options.visuals);
       console.log(`Reindexed ${path.resolve(options.root, '.design-brain')}`);
+    });
+
+  program
+    .command('export')
+    .description('Export design system from captured data')
+    .requiredOption('--project <project>', 'Project ID/slug')
+    .option('--format <format>', 'Export format (tailwind)', 'tailwind')
+    .option('--root <dir>', 'Workspace root', process.cwd())
+    .action(async (options: {
+      project: string;
+      format: string;
+      root: string;
+    }) => {
+      const outPath = await exportDesignSystem({
+        rootDir: path.resolve(options.root),
+        project: options.project,
+        format: options.format,
+      });
+      console.log(`Exported ${options.format} config to ${outPath}`);
     });
 
   await program.parseAsync(process.argv);
