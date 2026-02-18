@@ -7,18 +7,15 @@ import {
   generateTypographySvg,
   generateLayoutSvg,
 } from './svg.js';
+import { aggregateColors, aggregateTypography, aggregateComponents, aggregateMotion } from './aggregate.js';
 import { ensureKnowledgeFiles } from './knowledge.js';
 import { generateComponentTokens } from './tokens.js';
 import { generateTailwindConfig } from './tailwind.js';
 import { csvEscape, relPath, truncate, unique } from './util.js';
 import type {
-  ColorToken,
-  ComponentToken,
   DesignBrainDatabase,
   InspirationRecord,
-  MotionToken,
   ProjectRecord,
-  TypographyToken,
 } from './types.js';
 
 function mdTable(headers: string[], rows: string[][]): string {
@@ -26,70 +23,6 @@ function mdTable(headers: string[], rows: string[][]): string {
   const rule = `| ${headers.map(() => '---').join(' | ')} |`;
   const body = rows.map((row) => `| ${row.join(' | ')} |`).join('\n');
   return [head, rule, body].filter((line) => line.length > 0).join('\n');
-}
-
-function aggregateColors(records: InspirationRecord[]): ColorToken[] {
-  const map = new Map<string, ColorToken>();
-
-  for (const record of records) {
-    for (const color of record.analysis.colors) {
-      const existing = map.get(color.hex) ?? { hex: color.hex, count: 0, samples: [] };
-      existing.count += color.count;
-      for (const sample of color.samples) {
-        if (existing.samples.length < 6 && !existing.samples.includes(sample)) {
-          existing.samples.push(sample);
-        }
-      }
-      map.set(color.hex, existing);
-    }
-  }
-
-  return [...map.values()].sort((a, b) => b.count - a.count).slice(0, 40);
-}
-
-function aggregateTypography(records: InspirationRecord[]): TypographyToken[] {
-  const map = new Map<string, TypographyToken>();
-
-  for (const record of records) {
-    for (const token of record.analysis.typography) {
-      const key = `${token.fontFamily}|${token.fontSize}|${token.fontWeight}|${token.lineHeight}`;
-      const existing = map.get(key) ?? { ...token, count: 0 };
-      existing.count += token.count;
-      map.set(key, existing);
-    }
-  }
-
-  return [...map.values()].sort((a, b) => b.count - a.count).slice(0, 60);
-}
-
-function aggregateComponents(records: InspirationRecord[]): Array<ComponentToken & { count: number }> {
-  const map = new Map<string, ComponentToken & { count: number }>();
-
-  for (const record of records) {
-    for (const token of record.analysis.components) {
-      const key = `${token.kind}|${token.tag}|${token.selector}`;
-      const existing = map.get(key) ?? { ...token, count: 0 };
-      existing.count += 1;
-      map.set(key, existing);
-    }
-  }
-
-  return [...map.values()].sort((a, b) => b.count - a.count).slice(0, 120);
-}
-
-function aggregateMotion(records: InspirationRecord[]): Array<MotionToken & { count: number }> {
-  const map = new Map<string, MotionToken & { count: number }>();
-
-  for (const record of records) {
-    for (const token of record.analysis.motion) {
-      const key = `${token.selector}|${token.transition}|${token.animation}|${token.transform}`;
-      const existing = map.get(key) ?? { ...token, count: 0 };
-      existing.count += 1;
-      map.set(key, existing);
-    }
-  }
-
-  return [...map.values()].sort((a, b) => b.count - a.count).slice(0, 140);
 }
 
 function renderProjectReadme(project: ProjectRecord): string {
