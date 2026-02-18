@@ -14,6 +14,7 @@ import {
   reindexBrain,
   searchBrain,
 } from './commands.js';
+import { runScorecard } from './scorecard.js';
 import { shouldSkipPrompts } from './interactive.js';
 import { resolveLlmConfig } from './llm.js';
 import { getDefaultSkillRepo, installSkill, maybePromptSkillInstall } from './skillPrompt.js';
@@ -362,6 +363,21 @@ async function main(): Promise<void> {
         project: options.project,
       });
       console.log(`Detected ${result.trends} trends, wrote ${result.written} notes`);
+    });
+
+  program
+    .command('scorecard')
+    .description('Audit local codebase against captured design tokens')
+    .requiredOption('--project <project>', 'Project ID/slug')
+    .requiredOption('--scan <path>', 'Directory to scan')
+    .option('--root <dir>', 'Workspace root', process.cwd())
+    .action(async (options: { project: string; scan: string; root: string }) => {
+      const outPath = await runScorecard({
+        rootDir: path.resolve(options.root),
+        project: options.project,
+        scanPath: path.resolve(options.scan),
+      });
+      console.log(`Scorecard written to ${outPath}`);
     });
 
   await program.parseAsync(process.argv);
