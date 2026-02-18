@@ -1,11 +1,31 @@
 {
+  "SessionStart": [
+    {
+      "hooks": [
+        {
+          "type": "command",
+          "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/session-orient.sh"
+        }
+      ]
+    }
+  ],
   "PostToolUse": [
     {
       "matcher": "Write|Edit",
       "hooks": [
         {
           "type": "command",
-          "command": "echo \"Design Brain hint: run design-brain-memory reindex when wiki docs change.\""
+          "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/write-validate.sh"
+        }
+      ]
+    }
+  ],
+  "Stop": [
+    {
+      "hooks": [
+        {
+          "type": "command",
+          "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/session-capture.sh"
         }
       ]
     }
