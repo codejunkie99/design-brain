@@ -282,7 +282,7 @@ async function main(): Promise<void> {
     .command('export')
     .description('Export design system from captured data')
     .requiredOption('--project <project>', 'Project ID/slug')
-    .option('--format <format>', 'Export format (tailwind)', 'tailwind')
+    .option('--format <format>', 'Export format (tailwind, style-dictionary)', 'tailwind')
     .option('--root <dir>', 'Workspace root', process.cwd())
     .action(async (options: {
       project: string;

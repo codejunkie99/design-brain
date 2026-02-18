@@ -5,6 +5,7 @@ import { captureDesignFromUrl } from './extractFromUrl.js';
 import { enrichWithLlm } from './llm.js';
 import { askDesignBrain, searchDesignBrain } from './query.js';
 import { renderAll } from './render.js';
+import { generateStyleDictionary } from './styleDictionary.js';
 import { generateTailwindConfig } from './tailwind.js';
 import {
   brainRoot,
@@ -262,20 +263,27 @@ export async function exportDesignSystem(params: {
   project: string;
   format: string;
 }): Promise<string> {
-  if (params.format !== 'tailwind') {
-    throw new Error(`Unsupported format: ${params.format}. Supported: tailwind`);
-  }
-
   const db = await loadDatabase(params.rootDir);
   const project = db.projects.find((p) => p.id === params.project);
   if (!project) {
     throw new Error(`Project not found: ${params.project}`);
   }
 
-  const config = generateTailwindConfig(project);
-  const outPath = path.join(projectDir(params.rootDir, project.id), 'tailwind.config.js');
-  await fs.ensureDir(path.dirname(outPath));
-  await fs.writeFile(outPath, config);
+  if (params.format === 'tailwind') {
+    const config = generateTailwindConfig(project);
+    const outPath = path.join(projectDir(params.rootDir, project.id), 'tailwind.config.js');
+    await fs.ensureDir(path.dirname(outPath));
+    await fs.writeFile(outPath, config);
+    return outPath;
+  }
 
-  return outPath;
+  if (params.format === 'style-dictionary') {
+    const tokens = generateStyleDictionary(project);
+    const outPath = path.join(projectDir(params.rootDir, project.id), 'tokens.json');
+    await fs.ensureDir(path.dirname(outPath));
+    await fs.writeJson(outPath, tokens, { spaces: 2 });
+    return outPath;
+  }
+
+  throw new Error(`Unsupported format: ${params.format}. Supported: tailwind, style-dictionary`);
 }
