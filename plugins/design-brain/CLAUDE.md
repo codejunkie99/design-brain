@@ -56,9 +56,41 @@ When the user asks to:
 
 ### Export
 When the user asks to:
-- export Tailwind config, generate CSS, export design tokens
+- export Tailwind config, Style Dictionary, generate CSS, export design tokens
 
 → Run `/db-export`
+
+### Compare
+When the user asks to:
+- compare two captures, diff two inspirations, version diff
+- what changed between captures
+
+→ Run `/db-compare`
+
+### Batch Capture
+When the user asks to:
+- batch capture, ingest multiple URLs, capture from file
+
+→ Run `/db-batch`
+
+### Moodboard
+When the user asks to:
+- generate moodboard, visual summary, palette overview
+
+→ Run `/db-moodboard`
+
+### Trends
+When the user asks to:
+- detect trends, what's trending, show patterns over time
+
+→ Run `/db-trends`
+
+### Scorecard
+When the user asks to:
+- audit codebase, design system scorecard, check adherence
+- compare code against design tokens
+
+→ Run `/db-scorecard`
 
 ## Required Engine
 
@@ -67,7 +99,7 @@ Do not implement page capture through direct Playwright code paths.
 
 ## Package Dependency
 
-Requires `design-brain-memory` npm package (v0.4.1+):
+Requires `design-brain-memory` npm package (v0.6.0+):
 ```bash
 npm install -g design-brain-memory
 ```

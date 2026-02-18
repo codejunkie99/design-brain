@@ -1,7 +1,7 @@
 {
   "name": "design-brain",
-  "version": "0.6.0",
-  "description": "Design knowledge system with processing pipeline, hooks, and persistent memory. Captures inspiration, extracts patterns/decisions/principles, synthesizes connections, and evolves knowledge over time.",
+  "version": "0.7.0",
+  "description": "Design knowledge system with processing pipeline, moodboards, trend detection, scorecard audits, and persistent memory. Captures inspiration, extracts patterns, synthesizes connections, compares captures, and evolves knowledge over time.",
   "author": {
     "name": "design-brain",
     "github": "https://github.com/design-brain"

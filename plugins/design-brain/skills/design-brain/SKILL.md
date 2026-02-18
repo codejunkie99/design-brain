@@ -63,7 +63,12 @@ Check what's pending: `/db-next`
 | `/db-next` | Show next pending queue item |
 | `/db-search` | Ripgrep search across the brain |
 | `/db-stats` | Vault metrics and health report |
-| `/db-export` | Export Tailwind config |
+| `/db-export` | Export Tailwind or Style Dictionary tokens |
+| `/db-compare` | Compare two captures or version diff |
+| `/db-batch` | Batch capture from URL list file |
+| `/db-moodboard` | Generate HTML + PNG visual moodboard |
+| `/db-trends` | Detect design trends across captures |
+| `/db-scorecard` | Audit codebase against captured tokens |
 
 ## Workflow
 

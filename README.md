@@ -58,7 +58,12 @@ design-brain-memory export --project my-project --format tailwind
 | `outcome` | Record a design outcome linked to inspirations |
 | `search` | Keyword search across the brain |
 | `ask` | Semantic search (requires LLM config) |
-| `export` | Generate Tailwind config from captured tokens |
+| `export` | Export tokens (tailwind or style-dictionary format) |
+| `compare` | Compare two captures or version diff |
+| `batch` | Batch capture from a URL list file |
+| `moodboard` | Generate HTML + PNG visual moodboard |
+| `trends` | Detect design trends across captures |
+| `scorecard` | Audit codebase against captured design tokens |
 | `reindex` | Regenerate all markdown, SVGs, and knowledge files |
 
 ### Ingest
@@ -198,7 +203,12 @@ design-brain ships as a Claude Code plugin with slash commands and hooks:
 | `/db-next` | Show next pending queue item |
 | `/db-search` | Ripgrep search across the brain |
 | `/db-stats` | Vault metrics and health report |
-| `/db-export` | Export Tailwind config |
+| `/db-export` | Export Tailwind or Style Dictionary tokens |
+| `/db-compare` | Compare two captures or version diff |
+| `/db-batch` | Batch capture from URL list file |
+| `/db-moodboard` | Generate visual moodboard |
+| `/db-trends` | Detect design trends across captures |
+| `/db-scorecard` | Audit codebase against captured tokens |
 
 ### Hooks
 
