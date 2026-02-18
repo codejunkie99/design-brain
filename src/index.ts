@@ -14,6 +14,7 @@ export {
 export { compareInspirations, renderComparison } from './compare.js';
 export { generateMoodboardHtml, generateMoodboardSvg } from './moodboard.js';
 export { askDesignBrain, searchDesignBrain } from './query.js';
+export { scanCssContent, scoreAgainstProject, renderScorecard, runScorecard } from './scorecard.js';
 export { detectTrends, writeTrendNotes } from './trends.js';
 export { generateStyleDictionary } from './styleDictionary.js';
 export type {
