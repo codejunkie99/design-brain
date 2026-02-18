@@ -1,5 +1,6 @@
 import path from 'node:path';
 import fs from 'fs-extra';
+import { compareInspirations, renderComparison } from './compare.js';
 import { captureDesignFromImage } from './extractFromImage.js';
 import { captureDesignFromUrl } from './extractFromUrl.js';
 import { enrichWithLlm } from './llm.js';
@@ -286,4 +287,56 @@ export async function exportDesignSystem(params: {
   }
 
   throw new Error(`Unsupported format: ${params.format}. Supported: tailwind, style-dictionary`);
+}
+
+export async function compareCaptures(params: {
+  rootDir: string;
+  inspoA?: string;
+  inspoB?: string;
+  inspo?: string;
+}): Promise<string> {
+  const db = await loadDatabase(params.rootDir);
+
+  let a: InspirationRecord | undefined;
+  let b: InspirationRecord | undefined;
+  let projectId = '';
+
+  if (params.inspo) {
+    // Version diff mode — find inspo and its predecessor
+    for (const project of db.projects) {
+      const found = project.inspirations.find((i) => i.id === params.inspo);
+      if (found) {
+        b = found;
+        projectId = project.id;
+        if (found.supersedes) {
+          a = project.inspirations.find((i) => i.id === found.supersedes);
+        }
+        break;
+      }
+    }
+    if (!b) throw new Error(`Inspiration not found: ${params.inspo}`);
+    if (!a) throw new Error(`No previous version found for ${params.inspo}`);
+  } else if (params.inspoA && params.inspoB) {
+    // Cross-capture mode
+    for (const project of db.projects) {
+      const foundA = project.inspirations.find((i) => i.id === params.inspoA);
+      const foundB = project.inspirations.find((i) => i.id === params.inspoB);
+      if (foundA) { a = foundA; projectId = project.id; }
+      if (foundB) { b = foundB; if (!projectId) projectId = project.id; }
+    }
+    if (!a) throw new Error(`Inspiration not found: ${params.inspoA}`);
+    if (!b) throw new Error(`Inspiration not found: ${params.inspoB}`);
+  } else {
+    throw new Error('Provide --a and --b for cross-capture, or --inspo for version diff');
+  }
+
+  const report = compareInspirations(a, b);
+  const md = renderComparison(report);
+
+  const compDir = path.join(projectDir(params.rootDir, projectId), 'comparisons');
+  await fs.ensureDir(compDir);
+  const outPath = path.join(compDir, `${a.id}-vs-${b.id}.md`);
+  await fs.writeFile(outPath, md);
+
+  return outPath;
 }

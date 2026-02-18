@@ -1,5 +1,6 @@
 export {
   askBrain,
+  compareCaptures,
   exportDesignSystem,
   initBrain,
   ingestInspiration,
@@ -7,6 +8,7 @@ export {
   reindexBrain,
   searchBrain,
 } from './commands.js';
+export { compareInspirations, renderComparison } from './compare.js';
 export { askDesignBrain, searchDesignBrain } from './query.js';
 export { generateStyleDictionary } from './styleDictionary.js';
 export type {

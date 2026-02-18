@@ -3,6 +3,7 @@ import path from 'node:path';
 import { Command } from 'commander';
 import {
   askBrain,
+  compareCaptures,
   exportDesignSystem,
   initBrain,
   ingestInspiration,
@@ -295,6 +296,23 @@ async function main(): Promise<void> {
         format: options.format,
       });
       console.log(`Exported ${options.format} config to ${outPath}`);
+    });
+
+  program
+    .command('compare')
+    .description('Compare two captures or two versions of the same URL')
+    .option('--a <id>', 'First inspiration ID')
+    .option('--b <id>', 'Second inspiration ID')
+    .option('--inspo <id>', 'Inspiration ID (compares against previous version)')
+    .option('--root <dir>', 'Workspace root', process.cwd())
+    .action(async (options: { a?: string; b?: string; inspo?: string; root: string }) => {
+      const outPath = await compareCaptures({
+        rootDir: path.resolve(options.root),
+        inspoA: options.a,
+        inspoB: options.b,
+        inspo: options.inspo,
+      });
+      console.log(`Comparison written to ${outPath}`);
     });
 
   await program.parseAsync(process.argv);
