@@ -203,6 +203,7 @@ export interface IngestOptions {
   journeySteps?: number;
   responsiveViewports?: Array<{ label: string; width: number; height: number }>;
   skipVisuals?: boolean;
+  live?: boolean;
 }
 
 export interface OutcomeOptions {

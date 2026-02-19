@@ -15,6 +15,7 @@ import { buildKnowledgeGraph, generateGraphHtml } from './graphView.js';
 import { aggregateWritingStyles, renderWritingStyleMd } from './writingStyle.js';
 import { generateDesignContext, generateUnifiedContext } from './contextLayer.js';
 import { captureDesignFromUrl } from './extractFromUrl.js';
+import { createLiveView } from './liveView.js';
 import { enrichWithLlm } from './llm.js';
 import { askDesignBrain, searchDesignBrain } from './query.js';
 import { renderAll } from './render.js';
@@ -129,9 +130,16 @@ export async function ingestInspiration(options: IngestOptions): Promise<{ proje
   let screenshotPath: string | undefined;
   let analysis: DesignAnalysis;
 
+  const liveView = createLiveView({
+    enabled: Boolean(options.live),
+    viewportLabels: options.responsiveViewports?.map(v => v.label),
+    journeySteps: options.journeySteps,
+  });
+
   if (options.url) {
     screenshotPath = path.join(assetDir, `${inspirationId}.png`);
     const sessionName = `designbrain-${project.id}-${Date.now().toString(36)}`;
+    liveView.onPhaseStart(`Capturing ${options.url}`);
     analysis = await captureDesignFromUrl({
       url: options.url,
       sessionName,
@@ -139,6 +147,12 @@ export async function ingestInspiration(options: IngestOptions): Promise<{ proje
       workingDir: options.rootDir,
       journeySteps: options.journeySteps,
       responsiveViewports: options.responsiveViewports,
+      callbacks: {
+        onViewportExtracted: liveView.onViewportExtracted,
+        onInteractiveStates: liveView.onInteractiveStates,
+        onJourneyStep: liveView.onJourneyStep,
+        onMerged: liveView.onMerged,
+      },
     });
   } else {
     const source = path.resolve(options.rootDir, options.screenshot as string);
@@ -200,6 +214,8 @@ export async function ingestInspiration(options: IngestOptions): Promise<{ proje
     diffFromPrevious: previousVersion ? buildDiff(previousVersion, analysis) : undefined,
     analysis,
   };
+
+  liveView.onAnalysisComplete(record);
 
   project.inspirations.push(record);
 
