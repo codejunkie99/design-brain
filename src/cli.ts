@@ -28,6 +28,8 @@ import { runScorecard } from './scorecard.js';
 import { shouldSkipPrompts } from './interactive.js';
 import { resolveLlmConfig } from './llm.js';
 import { getDefaultSkillRepo, installSkill, maybePromptSkillInstall } from './skillPrompt.js';
+import { buildTasteProfile } from './taste.js';
+import { renderTasteProfile } from './tasteRenderer.js';
 
 function toStringList(value?: string | string[]): string[] {
   if (!value) {
@@ -536,6 +538,47 @@ async function main(): Promise<void> {
         projectB: options.projectB,
       });
       console.log(`System diff written to ${outPath}`);
+    });
+
+  program
+    .command('taste')
+    .description('Build a taste profile from multiple design inspirations')
+    .argument('<urls...>', 'URLs or domains to analyze')
+    .requiredOption('--project <project>', 'Project ID/slug')
+    .option('--project-name <name>', 'Readable project name')
+    .option('--headed', 'Use visible browser for capture', false)
+    .option('--llm-base-url <url>', 'OpenAI-compatible LLM base URL')
+    .option('--llm-api-key <key>', 'LLM API key')
+    .option('--llm-model <model>', 'LLM model id')
+    .option('--llm-timeout-ms <ms>', 'LLM timeout in milliseconds', '30000')
+    .option('--root <dir>', 'Workspace root', process.cwd())
+    .action(async (urls: string[], options: {
+      project: string;
+      projectName?: string;
+      headed: boolean;
+      llmBaseUrl?: string;
+      llmApiKey?: string;
+      llmModel?: string;
+      llmTimeoutMs: string;
+      root: string;
+    }) => {
+      const llm = resolveLlmConfig({
+        baseUrl: options.llmBaseUrl,
+        apiKey: options.llmApiKey,
+        model: options.llmModel,
+        timeoutMs: parseInteger(options.llmTimeoutMs, 30000),
+      });
+
+      const profile = await buildTasteProfile({
+        rootDir: path.resolve(options.root),
+        projectId: options.project,
+        projectName: options.projectName,
+        urls,
+        headed: options.headed,
+        llm,
+      });
+
+      console.log(renderTasteProfile(profile));
     });
 
   await program.parseAsync(process.argv);
