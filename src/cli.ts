@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 import path from 'node:path';
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { Command } from 'commander';
 import { batchCapture } from './batch.js';
 import {
@@ -67,14 +69,47 @@ function parseViewports(values?: string[]): Array<{ label: string; width: number
   return parsed.length > 0 ? parsed : undefined;
 }
 
+function getVersion(): string {
+  try {
+    const __dirname = path.dirname(fileURLToPath(import.meta.url));
+    const pkg = JSON.parse(readFileSync(path.join(__dirname, '..', 'package.json'), 'utf-8'));
+    return pkg.version ?? '0.0.0';
+  } catch {
+    return '0.0.0';
+  }
+}
+
+function printBanner(version: string): void {
+  const DIM = '\x1b[2m';
+  const BOLD = '\x1b[1m';
+  const CYAN = '\x1b[36m';
+  const RESET = '\x1b[0m';
+
+  const banner = [
+    '',
+    `${BOLD}${CYAN}  ┌─────────────────────────────────────────┐${RESET}`,
+    `${BOLD}${CYAN}  │${RESET}                                         ${BOLD}${CYAN}│${RESET}`,
+    `${BOLD}${CYAN}  │${RESET}   ${BOLD}design-brain${RESET}  ${DIM}v${version}${RESET}                   ${BOLD}${CYAN}│${RESET}`,
+    `${BOLD}${CYAN}  │${RESET}   ${DIM}Relational design memory${RESET}                ${BOLD}${CYAN}│${RESET}`,
+    `${BOLD}${CYAN}  │${RESET}                                         ${BOLD}${CYAN}│${RESET}`,
+    `${BOLD}${CYAN}  └─────────────────────────────────────────┘${RESET}`,
+    '',
+  ];
+  console.log(banner.join('\n'));
+}
+
 async function main(): Promise<void> {
+  const version = getVersion();
   const program = new Command();
 
   program
     .name('design-brain-memory')
     .description('Relational markdown design memory powered by Agent Browser CLI')
-    .version('0.7.0')
-    .option('-y, --yes', 'Skip interactive prompts');
+    .version(version)
+    .option('-y, --yes', 'Skip interactive prompts')
+    .hook('preAction', () => {
+      printBanner(version);
+    });
 
   program
     .command('init')
