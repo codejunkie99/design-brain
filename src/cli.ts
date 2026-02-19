@@ -105,6 +105,7 @@ async function main(): Promise<void> {
     .option('--llm-timeout-ms <ms>', 'LLM timeout in milliseconds', '30000')
     .option('--root <dir>', 'Workspace root', process.cwd())
     .option('--no-visuals', 'Skip SVG visual generation')
+    .option('--live', 'Show live extraction visualization in terminal')
     .action(async (options: {
       project: string;
       projectName?: string;
@@ -123,6 +124,7 @@ async function main(): Promise<void> {
       llmTimeoutMs: string;
       root: string;
       visuals: boolean;
+      live?: boolean;
     }) => {
       const llm = resolveLlmConfig({
         baseUrl: options.llmBaseUrl,
@@ -146,6 +148,7 @@ async function main(): Promise<void> {
         journeySteps: parseInteger(options.journeySteps, 3),
         responsiveViewports: parseViewports(options.viewport),
         skipVisuals: !options.visuals,
+        live: options.live ?? false,
       });
 
       console.log(`Captured inspiration ${result.inspirationId} in project ${result.projectId}`);

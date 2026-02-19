@@ -599,6 +599,7 @@ async function collectJourney(params: {
   sessionName: string;
   workingDir: string;
   maxSteps: number;
+  onStep?: (step: number, url: string) => void;
 }): Promise<JourneyStep[]> {
   const steps: JourneyStep[] = [];
 
@@ -652,6 +653,7 @@ async function collectJourney(params: {
         title: summaryData.title as string | undefined,
         summary: summaryData.summary as string | undefined,
       });
+      params.onStep?.(i + 1, toUrl);
 
       await runAgentBrowserJson(['back'], {
         session: params.sessionName,
@@ -667,6 +669,13 @@ async function collectJourney(params: {
   return steps;
 }
 
+export interface CaptureCallbacks {
+  onViewportExtracted?: (label: string, analysis: DesignAnalysis) => void;
+  onInteractiveStates?: (count: number) => void;
+  onJourneyStep?: (step: number, url: string) => void;
+  onMerged?: (analysis: DesignAnalysis) => void;
+}
+
 export async function captureDesignFromUrl(params: {
   url: string;
   sessionName: string;
@@ -674,6 +683,7 @@ export async function captureDesignFromUrl(params: {
   workingDir: string;
   journeySteps?: number;
   responsiveViewports?: Array<{ label: string; width: number; height: number }>;
+  callbacks?: CaptureCallbacks;
 }): Promise<DesignAnalysis> {
   const {
     url,
@@ -682,6 +692,7 @@ export async function captureDesignFromUrl(params: {
     workingDir,
     journeySteps = 3,
     responsiveViewports = DEFAULT_VIEWPORTS,
+    callbacks,
   } = params;
 
   await fs.ensureDir(path.dirname(screenshotPath));
@@ -713,6 +724,7 @@ export async function captureDesignFromUrl(params: {
       const normalized = normalizeResult((extraction.data.result as Record<string, unknown>) ?? {});
       captures.push(normalized);
       responsiveSnapshots.push(toResponsiveSnapshot(viewport.label, normalized));
+      callbacks?.onViewportExtracted?.(viewport.label, normalized);
     }
 
     await runAgentBrowserJson(['set', 'viewport', '1440', '1200'], {
@@ -729,11 +741,13 @@ export async function captureDesignFromUrl(params: {
       sessionName,
       workingDir,
     });
+    callbacks?.onInteractiveStates?.(interactiveStates.length);
 
     const journey = await collectJourney({
       sessionName,
       workingDir,
       maxSteps: journeySteps,
+      onStep: callbacks?.onJourneyStep,
     });
 
     await runAgentBrowserJson(['screenshot', screenshotPath, '--full'], {
@@ -742,6 +756,7 @@ export async function captureDesignFromUrl(params: {
     });
 
     const merged = mergeAnalysis(captures);
+    callbacks?.onMerged?.(merged);
     const stateStyles = [...(merged.stateStyles ?? []), ...interactiveStates].slice(0, 400);
 
     return {
