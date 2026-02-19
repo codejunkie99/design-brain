@@ -41,6 +41,17 @@ export { detectTrends, writeTrendNotes } from './trends.js';
 export { analyzeWritingStyle, aggregateWritingStyles, renderWritingStyleMd } from './writingStyle.js';
 export type { WritingStyleToken, HeadingPattern, CtaPattern, TextLevel } from './writingStyle.js';
 export { generateStyleDictionary } from './styleDictionary.js';
+export { loadTasteProfile, saveTasteProfile } from './store.js';
+export { runDesignLlm } from './llm.js';
+export type {
+  TasteProfile,
+  TasteDiffResult,
+  ComponentCherryPick,
+  TasteDecision,
+  TasteConflict,
+  PersonaMatch,
+  ScanScore,
+} from './types.js';
 export type {
   ColorToken,
   ComponentToken,
