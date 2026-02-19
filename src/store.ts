@@ -1,7 +1,7 @@
 import path from 'node:path';
 import fs from 'fs-extra';
 import { nowIso, slugify } from './util.js';
-import type { DesignBrainDatabase, ProjectRecord } from './types.js';
+import type { DesignBrainDatabase, ProjectRecord, TasteProfile } from './types.js';
 
 export function brainRoot(rootDir: string): string {
   return path.join(rootDir, '.design-brain');
@@ -84,4 +84,24 @@ export function ensureProject(db: DesignBrainDatabase, options: {
 
   project.updatedAt = now;
   return project;
+}
+
+export function tasteDir(rootDir: string): string {
+  return path.join(brainRoot(rootDir), 'taste');
+}
+
+export function tasteProfilePath(rootDir: string, projectId: string): string {
+  return path.join(tasteDir(rootDir), `${projectId}.json`);
+}
+
+export async function loadTasteProfile(rootDir: string, projectId: string): Promise<TasteProfile | null> {
+  const filePath = tasteProfilePath(rootDir, projectId);
+  if (!await fs.pathExists(filePath)) return null;
+  return fs.readJson(filePath);
+}
+
+export async function saveTasteProfile(rootDir: string, profile: TasteProfile): Promise<void> {
+  const dir = tasteDir(rootDir);
+  await fs.ensureDir(dir);
+  await fs.writeJson(tasteProfilePath(rootDir, profile.id), profile, { spaces: 2 });
 }
