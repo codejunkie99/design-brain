@@ -9,8 +9,7 @@ Capture design inspiration using Agent Browser CLI and maintain a relational mar
 ## Included
 
 - `skills/design-brain/SKILL.md`
-- `commands/db-capture.md`
-- `commands/db-search.md`
+- `commands/db-*.md` (capture, search, export, compare, trends, scorecard, review, graph, context, taste, and more)
 - `.claude-plugin/plugin.json`
 - `CLAUDE.md`
 

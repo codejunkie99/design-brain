@@ -1,7 +1,7 @@
 import path from 'node:path';
 import fs from 'fs-extra';
 import { brainRoot } from './store.js';
-import type { DesignBrainDatabase, ProjectRecord } from './types.js';
+import type { DesignBrainDatabase } from './types.js';
 
 export interface DesignProfile {
   domains: string[];

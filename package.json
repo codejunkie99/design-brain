@@ -23,7 +23,9 @@
     "clean": "rm -rf dist",
     "dev": "tsx src/cli.ts",
     "test": "npm run build && node --test tests/*.test.mjs",
-    "pack:dry": "npm pack --dry-run"
+    "pack:dry": "npm pack --dry-run",
+    "release:check": "npm run clean && npm run test && npm run pack:dry",
+    "prepublishOnly": "npm run release:check"
   },
   "keywords": [
     "design",

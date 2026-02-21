@@ -1,6 +1,20 @@
 import type { ProjectRecord } from './types.js';
 import { aggregateColors, aggregateTypography, aggregateComponents, aggregateMotion } from './aggregate.js';
 
+function parseDurationSeconds(value: string): number | null {
+  const match = value.trim().match(/^(\d+(?:\.\d+)?)(ms|s)$/i);
+  if (!match) {
+    return null;
+  }
+
+  const amount = Number.parseFloat(match[1]);
+  if (!Number.isFinite(amount)) {
+    return null;
+  }
+
+  return match[2].toLowerCase() === 'ms' ? amount / 1000 : amount;
+}
+
 export function generateMoodboardHtml(project: ProjectRecord): string {
   if (project.inspirations.length === 0) {
     return `<!DOCTYPE html>
@@ -17,8 +31,10 @@ export function generateMoodboardHtml(project: ProjectRecord): string {
 
   const avgDuration = motion.length > 0
     ? (motion.reduce((sum, m) => {
-        const dur = (m.transitions ?? []).map((t) => parseFloat(t.duration) || 0);
-        return sum + (dur.length > 0 ? dur.reduce((a, b) => a + b, 0) / dur.length : 0);
+        const durations = (m.transitions ?? [])
+          .map((t) => parseDurationSeconds(t.duration))
+          .filter((value): value is number => value !== null);
+        return sum + (durations.length > 0 ? durations.reduce((a, b) => a + b, 0) / durations.length : 0);
       }, 0) / motion.length).toFixed(2)
     : '0';
 
