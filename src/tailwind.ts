@@ -1,4 +1,4 @@
-import type { ProjectRecord, ColorToken, TypographyToken } from './types.js';
+import type { ProjectRecord, ColorToken } from './types.js';
 
 const COLOR_KEY_PATTERNS = /color|bg|border|text|fill|stroke|accent|brand|surface/i;
 const COLOR_VALUE_RE = /^#[0-9a-f]{3,8}$/i;

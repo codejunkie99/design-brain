@@ -6,7 +6,6 @@ const CYAN = '\x1b[36m';
 const GREEN = '\x1b[32m';
 const YELLOW = '\x1b[33m';
 const RESET = '\x1b[0m';
-const WHITE = '\x1b[37m';
 
 function hexToAnsi256(hex: string): string {
   const raw = hex.replace('#', '');

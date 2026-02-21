@@ -1,4 +1,4 @@
-import type { DesignBrainDatabase, ProjectRecord, InspirationRecord } from './types.js';
+import type { ProjectRecord } from './types.js';
 import {
   aggregateColors,
   aggregateTypography,

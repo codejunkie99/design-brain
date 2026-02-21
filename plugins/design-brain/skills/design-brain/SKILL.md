@@ -62,13 +62,23 @@ Check what's pending: `/db-next`
 | `/db-pipeline` | Run full pipeline (all 4 phases) |
 | `/db-next` | Show next pending queue item |
 | `/db-search` | Ripgrep search across the brain |
+| `/db-ask` | Ask semantic questions against design brain context |
 | `/db-stats` | Vault metrics and health report |
-| `/db-export` | Export Tailwind or Style Dictionary tokens |
+| `/db-export` | Export tokens (`tailwind`, `style-dictionary`, or `css-in-js`) |
 | `/db-compare` | Compare two captures or version diff |
 | `/db-batch` | Batch capture from URL list file |
 | `/db-moodboard` | Generate HTML + PNG visual moodboard |
 | `/db-trends` | Detect design trends across captures |
 | `/db-scorecard` | Audit codebase against captured tokens |
+| `/db-component-graph` | Generate component relationship graph |
+| `/db-review` | Generate design review checklist |
+| `/db-name-tokens` | Preview human-readable token names |
+| `/db-system-diff` | Diff systems over time or across projects |
+| `/db-context` | Generate AI-ready context markdown |
+| `/db-wiki` | Generate wiki pages from captures |
+| `/db-graph` | Generate interactive graph visualization |
+| `/db-writing-style` | Analyze UI writing style patterns |
+| `/db-taste` | Build a taste profile from multiple URLs |
 
 ## Workflow
 

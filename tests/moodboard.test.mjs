@@ -49,3 +49,17 @@ test('generateMoodboardHtml handles empty project', () => {
   assert.ok(html.includes('Empty'));
   assert.ok(html.includes('No captures'));
 });
+
+test('generateMoodboardHtml normalizes millisecond motion durations', () => {
+  const project = makeProject();
+  project.inspirations[0].analysis.motion = [{
+    selector: '.card',
+    transition: 'opacity 200ms ease',
+    animation: 'none',
+    transform: 'none',
+    transitions: [{ property: 'opacity', duration: '200ms', timingFunction: 'ease', delay: '0s' }],
+  }];
+
+  const html = generateMoodboardHtml(project);
+  assert.ok(html.includes('0.20s'));
+});
