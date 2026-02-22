@@ -16,12 +16,14 @@
     "design-brain-memory": "dist/cli.js"
   },
   "files": [
-    "dist"
+    "dist",
+    "plugins/design-brain"
   ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "clean": "rm -rf dist",
     "dev": "tsx src/cli.ts",
+    "postinstall": "node -e \"import('./dist/postinstall.js').catch(() => undefined)\"",
     "test": "npm run build && node --test tests/*.test.mjs",
     "pack:dry": "npm pack --dry-run",
     "release:check": "npm run clean && npm run test && npm run pack:dry",
