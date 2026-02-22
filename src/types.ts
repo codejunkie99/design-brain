@@ -204,6 +204,7 @@ export interface IngestOptions {
   responsiveViewports?: Array<{ label: string; width: number; height: number }>;
   skipVisuals?: boolean;
   live?: boolean;
+  headed?: boolean;
 }
 
 /* ─── Taste Profile types ─── */

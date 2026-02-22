@@ -120,6 +120,9 @@ async function main(): Promise<void> {
     .action(async (options: { root: string }) => {
       await initBrain(path.resolve(options.root));
       console.log(`Initialized design brain at ${path.resolve(options.root, '.design-brain')}`);
+
+      const globalOptions = program.opts<{ yes?: boolean }>();
+      await maybePromptSkillInstall(shouldSkipPrompts(Boolean(globalOptions.yes)));
     });
 
   program
@@ -311,14 +314,22 @@ async function main(): Promise<void> {
 
   program
     .command('install-skill')
-    .description('Install Design Brain skill into your local skills registry')
+    .description('Install Design Brain skill for detected coding agents (with registry fallback)')
     .option('--repo <repo>', 'Skill repository override', getDefaultSkillRepo())
     .action(async (options: { repo: string }) => {
-      const installed = installSkill(options.repo);
-      if (!installed) {
+      const result = installSkill(options.repo);
+      if (result.localTargets.length > 0) {
+        console.log(`Installed skill locally in: ${result.localTargets.join(', ')}`);
+        return;
+      }
+      if (result.registryInstalled) {
+        console.log(`Installed skill from ${options.repo}`);
+        return;
+      }
+      if (options.repo !== getDefaultSkillRepo()) {
         throw new Error(`Skill install failed. Try manually: npx -y skills add ${options.repo}`);
       }
-      console.log(`Installed skill from ${options.repo}`);
+      throw new Error(`Skill install failed. Try manually: npx -y skills add ${options.repo}`);
     });
 
   program

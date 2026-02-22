@@ -527,11 +527,13 @@ function parseStylesFromGetStyles(data: unknown): Record<string, string> {
 async function collectInteractiveStateStyles(params: {
   sessionName: string;
   workingDir: string;
+  headed?: boolean;
 }): Promise<StateStyleToken[]> {
   const states: StateStyleToken[] = [];
   const snapshot = await runAgentBrowserJson(['snapshot', '-i', '-d', '2'], {
     session: params.sessionName,
     cwd: params.workingDir,
+    headed: params.headed,
   });
 
   const refs = ((snapshot.data.refs as Record<string, unknown>) ?? {});
@@ -543,10 +545,12 @@ async function collectInteractiveStateStyles(params: {
     await runAgentBrowserJson(['hover', ref], {
       session: params.sessionName,
       cwd: params.workingDir,
+      headed: params.headed,
     }).catch(() => undefined);
     const hoverStyles = await runAgentBrowserJson(['get', 'styles', ref], {
       session: params.sessionName,
       cwd: params.workingDir,
+      headed: params.headed,
     }).catch(() => undefined);
     if (hoverStyles?.success) {
       const declarations = parseStylesFromGetStyles(hoverStyles.data);
@@ -558,10 +562,12 @@ async function collectInteractiveStateStyles(params: {
     await runAgentBrowserJson(['focus', ref], {
       session: params.sessionName,
       cwd: params.workingDir,
+      headed: params.headed,
     }).catch(() => undefined);
     const focusStyles = await runAgentBrowserJson(['get', 'styles', ref], {
       session: params.sessionName,
       cwd: params.workingDir,
+      headed: params.headed,
     }).catch(() => undefined);
     if (focusStyles?.success) {
       const declarations = parseStylesFromGetStyles(focusStyles.data);
@@ -586,10 +592,11 @@ function toResponsiveSnapshot(label: string, analysis: DesignAnalysis): Responsi
   };
 }
 
-async function getCurrentUrl(params: { sessionName: string; workingDir: string }): Promise<string | undefined> {
+async function getCurrentUrl(params: { sessionName: string; workingDir: string; headed?: boolean }): Promise<string | undefined> {
   const response = await runAgentBrowserJson(['get', 'url'], {
     session: params.sessionName,
     cwd: params.workingDir,
+    headed: params.headed,
   }).catch(() => undefined);
 
   return response?.success ? (response.data.url as string | undefined) : undefined;
@@ -598,6 +605,7 @@ async function getCurrentUrl(params: { sessionName: string; workingDir: string }
 async function collectJourney(params: {
   sessionName: string;
   workingDir: string;
+  headed?: boolean;
   maxSteps: number;
   onStep?: (step: number, url: string) => void;
 }): Promise<JourneyStep[]> {
@@ -610,6 +618,7 @@ async function collectJourney(params: {
   const snapshot = await runAgentBrowserJson(['snapshot', '-i', '-d', '2'], {
     session: params.sessionName,
     cwd: params.workingDir,
+    headed: params.headed,
   });
 
   const refs = ((snapshot.data.refs as Record<string, { role?: string }>) ?? {});
@@ -625,6 +634,7 @@ async function collectJourney(params: {
     const clickResult = await runAgentBrowserJson(['click', ref], {
       session: params.sessionName,
       cwd: params.workingDir,
+      headed: params.headed,
     }).catch(() => undefined);
 
     if (!clickResult?.success) {
@@ -634,11 +644,13 @@ async function collectJourney(params: {
     await runAgentBrowserJson(['wait', '1200'], {
       session: params.sessionName,
       cwd: params.workingDir,
+      headed: params.headed,
     }).catch(() => undefined);
 
     const summaryResult = await runAgentBrowserJson(['eval', PAGE_SUMMARY_SCRIPT], {
       session: params.sessionName,
       cwd: params.workingDir,
+      headed: params.headed,
     }).catch(() => undefined);
 
     const summaryData = (summaryResult?.data.result as Record<string, unknown> | undefined) ?? {};
@@ -658,10 +670,12 @@ async function collectJourney(params: {
       await runAgentBrowserJson(['back'], {
         session: params.sessionName,
         cwd: params.workingDir,
+        headed: params.headed,
       }).catch(() => undefined);
       await runAgentBrowserJson(['wait', '900'], {
         session: params.sessionName,
         cwd: params.workingDir,
+        headed: params.headed,
       }).catch(() => undefined);
     }
   }
@@ -681,6 +695,7 @@ export async function captureDesignFromUrl(params: {
   sessionName: string;
   screenshotPath: string;
   workingDir: string;
+  headed?: boolean;
   journeySteps?: number;
   responsiveViewports?: Array<{ label: string; width: number; height: number }>;
   callbacks?: CaptureCallbacks;
@@ -690,6 +705,7 @@ export async function captureDesignFromUrl(params: {
     sessionName,
     screenshotPath,
     workingDir,
+    headed = false,
     journeySteps = 3,
     responsiveViewports = DEFAULT_VIEWPORTS,
     callbacks,
@@ -697,7 +713,7 @@ export async function captureDesignFromUrl(params: {
 
   await fs.ensureDir(path.dirname(screenshotPath));
 
-  await runAgentBrowserJson(['open', url], { session: sessionName, cwd: workingDir });
+  await runAgentBrowserJson(['open', url], { session: sessionName, cwd: workingDir, headed });
   try {
     const captures: DesignAnalysis[] = [];
     const responsiveSnapshots: ResponsiveSnapshot[] = [];
@@ -706,15 +722,18 @@ export async function captureDesignFromUrl(params: {
       await runAgentBrowserJson(['set', 'viewport', String(viewport.width), String(viewport.height)], {
         session: sessionName,
         cwd: workingDir,
+        headed,
       });
       await runAgentBrowserJson(['wait', '900'], {
         session: sessionName,
         cwd: workingDir,
+        headed,
       });
 
       const extraction = await runAgentBrowserJson(['eval', EXTRACTION_SCRIPT], {
         session: sessionName,
         cwd: workingDir,
+        headed,
       });
 
       if (!extraction.success) {
@@ -730,22 +749,26 @@ export async function captureDesignFromUrl(params: {
     await runAgentBrowserJson(['set', 'viewport', '1440', '1200'], {
       session: sessionName,
       cwd: workingDir,
+      headed,
     }).catch(() => undefined);
 
     const snapshotResult = await runAgentBrowserJson(['snapshot', '-c', '-d', '3'], {
       session: sessionName,
       cwd: workingDir,
+      headed,
     });
 
     const interactiveStates = await collectInteractiveStateStyles({
       sessionName,
       workingDir,
+      headed,
     });
     callbacks?.onInteractiveStates?.(interactiveStates.length);
 
     const journey = await collectJourney({
       sessionName,
       workingDir,
+      headed,
       maxSteps: journeySteps,
       onStep: callbacks?.onJourneyStep,
     });
@@ -753,6 +776,7 @@ export async function captureDesignFromUrl(params: {
     await runAgentBrowserJson(['screenshot', screenshotPath, '--full'], {
       session: sessionName,
       cwd: workingDir,
+      headed,
     });
 
     const merged = mergeAnalysis(captures);
@@ -767,6 +791,6 @@ export async function captureDesignFromUrl(params: {
       journey,
     };
   } finally {
-    await runAgentBrowserJson(['close'], { session: sessionName, cwd: workingDir }).catch(() => undefined);
+    await runAgentBrowserJson(['close'], { session: sessionName, cwd: workingDir, headed }).catch(() => undefined);
   }
 }

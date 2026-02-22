@@ -48,6 +48,12 @@ When the user asks to:
 
 → Run `/db-search`
 
+When the user asks to:
+- ask a semantic design question
+- summarize what the design brain says about a topic
+
+→ Run `/db-ask`
+
 ### Stats & Health
 When the user asks to:
 - show stats, how big is my brain, vault metrics
@@ -59,6 +65,69 @@ When the user asks to:
 - export Tailwind config, Style Dictionary, generate CSS, export design tokens
 
 → Run `/db-export`
+
+### Component Graph
+When the user asks to:
+- map component relationships, component topology
+- see which components co-occur most
+
+→ Run `/db-component-graph`
+
+### Review
+When the user asks to:
+- generate design review checklist
+- create review criteria from captures
+
+→ Run `/db-review`
+
+### Token Naming
+When the user asks to:
+- generate semantic token names
+- preview readable token naming
+
+→ Run `/db-name-tokens`
+
+### System Diff
+When the user asks to:
+- diff design systems between projects
+- compare system changes over time
+
+→ Run `/db-system-diff`
+
+### Context Generation
+When the user asks to:
+- create AI context for this design system
+- generate context markdown for Claude/Cursor
+
+→ Run `/db-context`
+
+### Wiki
+When the user asks to:
+- generate project wiki pages
+- rebuild markdown wiki from captures
+
+→ Run `/db-wiki`
+
+### Graph
+When the user asks to:
+- generate interactive graph visualization
+- explore token/project relationships visually
+
+→ Run `/db-graph`
+
+### Writing Style
+When the user asks to:
+- analyze UI copy style
+- extract writing tone and CTA patterns
+
+→ Run `/db-writing-style`
+
+### Taste Profile
+When the user asks to:
+- build a taste profile from multiple URLs
+- infer stylistic preferences from inspirations
+
+→ Run `/db-taste`
 
 ### Compare
 When the user asks to:
@@ -99,7 +168,7 @@ Do not implement page capture through direct Playwright code paths.
 
 ## Package Dependency
 
-Requires `design-brain-memory` npm package (v0.6.0+):
+Requires `design-brain-memory` npm package (v0.8.2+):
 ```bash
 npm install -g design-brain-memory
 ```
