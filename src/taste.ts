@@ -1,11 +1,10 @@
 import { aggregateColors, aggregateTypography, aggregateComponents, aggregateMotion } from './aggregate.js';
 import { designAnalysisToScanTokens, computeScore, looksLikeUrl, normalizeToUrl, hueFromHex, saturationFromHex, lightnessFromHex } from './scan.js';
 import { assignPersona } from './persona.js';
-import { loadDatabase, ensureProject, saveTasteProfile, loadTasteProfile, saveDatabase } from './store.js';
-import { captureDesignFromUrl } from './extractFromUrl.js';
+import { loadDatabase, ensureProject, saveTasteProfile, loadTasteProfile } from './store.js';
 import { enrichWithLlm } from './llm.js';
 import { ingestInspiration } from './commands.js';
-import { makeId, nowIso, slugify } from './util.js';
+import { nowIso } from './util.js';
 import type {
   ColorToken,
   ComponentToken,
@@ -21,7 +20,6 @@ import type {
   TasteTypographyPreference,
   TypographyToken,
 } from './types.js';
-import type { ScanTokens } from './scan.js';
 
 export interface TasteBuildOptions {
   rootDir: string;
@@ -287,7 +285,6 @@ function deriveMotionPreference(
 
 function deriveComponentPreference(
   components: Array<ComponentToken & { count: number }>,
-  inspirations: InspirationRecord[],
 ): TasteComponentPreference {
   const radiusValues: string[] = [];
   const shadowValues: string[] = [];
@@ -373,7 +370,7 @@ function detectConflicts(inspirations: InspirationRecord[]): TasteConflict[] {
 // ── Main builder ───────────────────────────────────────────
 
 export async function buildTasteProfile(options: TasteBuildOptions): Promise<TasteProfile> {
-  const { rootDir, projectId, projectName, urls, llm } = options;
+  const { rootDir, projectId, projectName, urls, headed = false, llm } = options;
   const db = await loadDatabase(rootDir);
   const project = ensureProject(db, { projectId, projectName });
 
@@ -388,6 +385,7 @@ export async function buildTasteProfile(options: TasteBuildOptions): Promise<Tas
       url,
       tags: ['taste-source'],
       skipVisuals: true,
+      headed,
       llm,
     });
   }
@@ -413,7 +411,7 @@ export async function buildTasteProfile(options: TasteBuildOptions): Promise<Tas
   const typographyPref = deriveTypographyPreference(typography);
   const spacingPref = deriveSpacingPreference(components);
   const motionPref = deriveMotionPreference(motion);
-  const componentPref = deriveComponentPreference(components, inspirations);
+  const componentPref = deriveComponentPreference(components);
 
   // Step 6: Score + persona
   const mergedAnalysis = {

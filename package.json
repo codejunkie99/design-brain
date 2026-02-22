@@ -1,6 +1,6 @@
 {
   "name": "design-brain-memory",
-  "version": "0.8.2",
+  "version": "0.9.4",
   "description": "Relational markdown design memory powered by Agent Browser CLI",
   "repository": {
     "type": "git",
@@ -16,14 +16,18 @@
     "design-brain-memory": "dist/cli.js"
   },
   "files": [
-    "dist"
+    "dist",
+    "plugins/design-brain"
   ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "clean": "rm -rf dist",
     "dev": "tsx src/cli.ts",
+    "postinstall": "node -e \"import('./dist/postinstall.js').catch(() => undefined)\"",
     "test": "npm run build && node --test tests/*.test.mjs",
-    "pack:dry": "npm pack --dry-run"
+    "pack:dry": "npm pack --dry-run",
+    "release:check": "npm run clean && npm run test && npm run pack:dry",
+    "prepublishOnly": "npm run release:check"
   },
   "keywords": [
     "design",

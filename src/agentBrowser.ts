@@ -72,11 +72,12 @@ function parseJsonFromOutput(stdout: string): AgentBrowserJsonResponse {
 
 export async function runAgentBrowserJson(
   args: string[],
-  options: { session?: string; cwd?: string } = {}
+  options: { session?: string; cwd?: string; headed?: boolean } = {}
 ): Promise<AgentBrowserJsonResponse> {
   const runner = resolveRunner();
   const finalArgs = [
     ...runner.prefixArgs,
+    ...(options.headed ? ['--headed'] : []),
     ...(options.session ? ['--session', options.session] : []),
     '--json',
     ...args,

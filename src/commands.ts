@@ -145,6 +145,7 @@ export async function ingestInspiration(options: IngestOptions): Promise<{ proje
       sessionName,
       screenshotPath,
       workingDir: options.rootDir,
+      headed: options.headed,
       journeySteps: options.journeySteps,
       responsiveViewports: options.responsiveViewports,
       callbacks: {
