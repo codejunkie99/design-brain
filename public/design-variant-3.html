@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design Brain - Variant 3 (Terracotta / Cobalt)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont/tabler-icons.min.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Outfit', sans-serif;
+  background: #E28765;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+.container {
+  background: #FDFBF7;
+  border-radius: 28px;
+  padding: 48px;
+  width: 100%;
+  max-width: 1100px;
+  position: relative;
+  color: #1A1525;
+}
+.notification {
+  position: absolute;
+  top: 40px;
+  right: 40px;
+  background: #0047FF;
+  border-radius: 16px;
+  padding: 16px 20px;
+  color: white;
+  width: 210px;
+  box-shadow: 0 20px 40px rgba(0,71,255,0.3);
+  z-index: 10;
+}
+.notification .sub { font-size: 11px; opacity: 0.7; }
+.notification .title { font-size: 13px; font-weight: 600; margin: 6px 0; }
+.notification .btn { background: #FF5C00; color: white; border: none; border-radius: 20px; padding: 6px 14px; font-size: 11px; font-weight: 600; cursor: pointer; margin-top: 8px; }
+.header-row { display: flex; align-items: center; margin-bottom: 8px; }
+.logo { display: flex; align-items: center; gap: 4px; }
+.logo .dot1 { width: 20px; height: 20px; background: #0047FF; border-radius: 50%; }
+.logo .dot2 { width: 8px; height: 8px; background: #0047FF; border-radius: 50%; }
+h1 { font-size: 46px; font-weight: 800; color: #1A1525; letter-spacing: -1px; line-height: 1.1; margin: 0; }
+.accent-bar { height: 4px; width: 160px; background: #0047FF; border-radius: 2px; margin: 12px 0 32px 0; }
+.timeline { margin-bottom: 32px; }
+.months { display: flex; gap: 32px; font-size: 12px; color: #999; margin-bottom: 12px; }
+.months .active { color: #1A1525; font-weight: 600; }
+.days { display: flex; gap: 16px; align-items: center; padding-bottom: 12px; border-bottom: 2px dashed #ddd; }
+.days span { font-size: 13px; color: #999; }
+.days .today { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; }
+.days .today::before { content: ''; position: absolute; width: 28px; height: 28px; background: #FF5C00; border-radius: 50%; }
+.days .today span { position: relative; font-weight: 700; color: white; }
+.days .bold { font-weight: 700; color: #1A1525; }
+.section-label { font-size: 14px; font-weight: 600; color: #1A1525; margin: 0 0 16px 0; }
+.objectives { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 32px; position: relative; }
+.url-input {
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #FCE3D9;
+  border-radius: 24px;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 8px 20px rgba(252,227,217,0.6);
+  z-index: 5;
+}
+.url-input i { color: #0047FF; font-size: 14px; }
+.url-input span { font-size: 12px; color: #1A1525; font-weight: 500; opacity: 0.6; }
+.obj-card { background: white; border: 1px solid #eee; border-radius: 12px; padding: 16px; position: relative; min-height: 90px; }
+.obj-card p { font-size: 12px; color: #333; margin: 0; }
+.obj-card p.struck { text-decoration: line-through; color: #999; }
+.obj-card .tag { font-size: 10px; color: #999; margin-top: 8px; display: block; }
+.obj-card .check { position: absolute; bottom: 12px; right: 12px; width: 20px; height: 20px; background: #0047FF; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.obj-card .check i { color: white; font-size: 10px; }
+.obj-card .uncheck { position: absolute; bottom: 12px; right: 12px; width: 20px; height: 20px; border: 2px solid #ddd; border-radius: 50%; }
+.bottom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+.token-cards { display: flex; gap: 12px; }
+.token-card { width: 100px; height: 100px; border-radius: 12px; position: relative; display: flex; align-items: center; justify-content: center; }
+.token-card.green { background: #D2E8D4; }
+.token-card.lavender { background: #E3DFFE; }
+.token-card .arrow { position: absolute; bottom: 6px; right: 6px; width: 20px; height: 20px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+.token-card .arrow i { font-size: 10px; color: #1A1525; }
+.token-labels { display: flex; gap: 12px; margin-top: 6px; }
+.token-labels span { font-size: 10px; color: #666; width: 100px; }
+.graph-widget { background: #0047FF; border-radius: 20px; padding: 16px 20px; color: white; display: flex; align-items: center; gap: 12px; }
+.graph-widget .progress-bar { flex: 1; }
+.graph-widget .progress-bar .track { height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px; overflow: hidden; }
+.graph-widget .progress-bar .fill { height: 100%; width: 58%; background: white; border-radius: 2px; }
+.graph-widget .progress-bar p { font-size: 10px; opacity: 0.7; margin: 4px 0 0 0; }
+.stats { display: flex; gap: 24px; margin-top: 16px; }
+.stats .stat { text-align: center; }
+.stats .stat .num { font-size: 22px; font-weight: 700; color: #0047FF; }
+.stats .stat p { font-size: 10px; color: #999; margin: 4px 0 0 0; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="notification">
+    <p class="sub">trend detected</p>
+    <p class="title">Inter font used on 80% of saves</p>
+    <p class="sub">just now</p>
+    <button class="btn">explore</button>
+  </div>
+
+  <div class="header-row">
+    <div class="logo"><div class="dot1"></div><div class="dot2"></div></div>
+  </div>
+
+  <h1>Graph Builder<br>01: Seeds</h1>
+  <div class="accent-bar"></div>
+
+  <div class="timeline">
+    <div class="months">
+      <span class="active">april</span><span>may</span><span>june</span><span>july</span><span>august</span><span>september</span>
+    </div>
+    <div class="days">
+      <span>22</span><span>23</span>
+      <div class="today"><span>24</span></div>
+      <span>25</span><span>26</span><span>27</span><span>28</span>
+      <span class="bold">29</span><span>30</span><span>31</span>
+      <span>01</span><span>02</span>
+    </div>
+  </div>
+
+  <p class="section-label">processing queue</p>
+  <div class="objectives">
+    <div class="url-input">
+      <i class="ti ti-plus"></i>
+      <span>paste URL to capture...</span>
+    </div>
+    <div class="obj-card">
+      <p class="struck">typography tokens extracted</p>
+      <span class="tag">stripe.com</span>
+      <div class="check"><i class="ti ti-check"></i></div>
+    </div>
+    <div class="obj-card">
+      <p class="struck">color variables parsed</p>
+      <span class="tag">linear.app</span>
+      <div class="check"><i class="ti ti-check"></i></div>
+    </div>
+    <div class="obj-card">
+      <p>component scan pending</p>
+      <span class="tag">vercel.com</span>
+      <div class="uncheck"></div>
+    </div>
+    <div class="obj-card">
+      <p>motion pattern analysis</p>
+      <span class="tag">apple.com</span>
+      <div class="uncheck"></div>
+    </div>
+  </div>
+
+  <div class="bottom-grid">
+    <div>
+      <p class="section-label">extracted fragments</p>
+      <div class="token-cards">
+        <div class="token-card green">
+          <svg width="40" height="40" viewBox="0 0 40 40"><rect x="10" y="16" width="20" height="8" rx="4" fill="#1A1525" opacity="0.3"/></svg>
+          <div class="arrow"><i class="ti ti-arrow-right"></i></div>
+        </div>
+        <div class="token-card lavender">
+          <svg width="40" height="40" viewBox="0 0 40 40"><circle cx="15" cy="20" r="5" fill="#0047FF" opacity="0.4"/><circle cx="25" cy="20" r="5" fill="#FF5C00" opacity="0.4"/></svg>
+          <div class="arrow"><i class="ti ti-arrow-right"></i></div>
+        </div>
+        <div class="token-card green">
+          <svg width="40" height="40" viewBox="0 0 40 40"><rect x="8" y="8" width="10" height="10" rx="2" fill="#1A1525" opacity="0.2"/><rect x="22" y="8" width="10" height="10" rx="2" fill="#1A1525" opacity="0.2"/><rect x="8" y="22" width="10" height="10" rx="2" fill="#1A1525" opacity="0.2"/><rect x="22" y="22" width="10" height="10" rx="2" fill="#1A1525" opacity="0.2"/></svg>
+          <div class="arrow"><i class="ti ti-arrow-right"></i></div>
+        </div>
+      </div>
+      <div class="token-labels">
+        <span>button variants</span>
+        <span>color tokens</span>
+        <span>grid layouts</span>
+      </div>
+    </div>
+    <div>
+      <p class="section-label">neural map</p>
+      <div class="graph-widget">
+        <i class="ti ti-git-merge" style="font-size:16px;"></i>
+        <div class="progress-bar">
+          <div class="track"><div class="fill"></div></div>
+          <p>building graph... 58%</p>
+        </div>
+        <i class="ti ti-player-pause" style="font-size:14px;"></i>
+      </div>
+      <div class="stats">
+        <div class="stat"><span class="num">28</span><p>nodes</p></div>
+        <div class="stat"><span class="num">56</span><p>edges</p></div>
+        <div class="stat"><span class="num">4</span><p>clusters</p></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
