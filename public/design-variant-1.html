@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design Brain - Variant 1 (Light / Yellow Accent)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont/tabler-icons.min.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background: #000;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+body::before {
+  content: '';
+  position: fixed;
+  top: -20%;
+  right: -10%;
+  width: 60%;
+  height: 60%;
+  background: radial-gradient(ellipse, rgba(255,200,180,0.12), transparent 70%);
+  pointer-events: none;
+}
+.container {
+  background: #F6F6F6;
+  border-radius: 28px;
+  padding: 48px;
+  width: 100%;
+  max-width: 1100px;
+  position: relative;
+}
+.notification {
+  position: absolute;
+  top: 40px;
+  right: 40px;
+  background: #0B0B0B;
+  border-radius: 16px;
+  padding: 16px 20px;
+  color: white;
+  width: 220px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+  z-index: 10;
+}
+.notification p { margin: 0; }
+.notification .sub { font-size: 11px; opacity: 0.6; }
+.notification .title { font-size: 13px; font-weight: 600; margin: 6px 0; }
+.notification .btn { background: #FFD800; color: #0B0B0B; border: none; border-radius: 20px; padding: 6px 14px; font-size: 11px; font-weight: 600; cursor: pointer; margin-top: 8px; }
+.logo { display: flex; align-items: center; gap: 4px; margin-bottom: 8px; }
+.logo .dot1 { width: 20px; height: 20px; background: #0B0B0B; border-radius: 50%; }
+.logo .dot2 { width: 8px; height: 8px; background: #0B0B0B; border-radius: 50%; }
+.nav-tabs { display: flex; gap: 8px; margin-left: auto; }
+.nav-tabs span { font-size: 13px; font-weight: 500; padding: 6px 16px; border-radius: 20px; color: #666; }
+.nav-tabs span.active { color: #0B0B0B; background: rgba(0,0,0,0.05); }
+.header-row { display: flex; align-items: center; }
+h1 { font-size: 48px; font-weight: 800; color: #0B0B0B; letter-spacing: -1px; line-height: 1.1; margin: 0; }
+.accent-bar { height: 4px; width: 180px; background: #FFD800; border-radius: 2px; margin: 12px 0 32px 0; }
+.timeline { margin-bottom: 32px; }
+.months { display: flex; gap: 32px; font-size: 12px; color: #999; margin-bottom: 12px; }
+.months .active { color: #0B0B0B; font-weight: 600; }
+.days { display: flex; gap: 16px; align-items: center; }
+.days span { font-size: 13px; color: #999; }
+.days .today { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; }
+.days .today::before { content: ''; position: absolute; width: 28px; height: 28px; background: #FFC5C5; border-radius: 50%; }
+.days .today span { position: relative; font-weight: 700; color: #0B0B0B; }
+.days .bold { font-weight: 700; color: #0B0B0B; }
+.section-label { font-size: 14px; font-weight: 600; color: #0B0B0B; margin: 0 0 16px 0; }
+.objectives { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 32px; }
+.obj-card { border-radius: 12px; padding: 16px; position: relative; min-height: 90px; }
+.obj-card.done { background: #EAF4E7; }
+.obj-card.pending { background: white; border: 1px solid #eee; }
+.obj-card p { font-size: 12px; color: #333; margin: 0; }
+.obj-card p.struck { text-decoration: line-through; }
+.obj-card .tag { font-size: 10px; color: #666; margin-top: 8px; display: block; }
+.obj-card .check { position: absolute; bottom: 12px; right: 12px; width: 20px; height: 20px; background: #0B0B0B; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.obj-card .check i { color: white; font-size: 10px; }
+.obj-card .uncheck { position: absolute; bottom: 12px; right: 12px; width: 20px; height: 20px; border: 2px solid #ccc; border-radius: 50%; }
+.bottom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+.token-cards { display: flex; gap: 12px; }
+.token-card { width: 100px; height: 100px; border-radius: 12px; position: relative; display: flex; align-items: center; justify-content: center; }
+.token-card.gray { background: #E2E2E2; }
+.token-card.purple { background: #A384DF; }
+.token-card .arrow { position: absolute; bottom: 6px; right: 6px; width: 20px; height: 20px; background: #FFD800; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.token-card .arrow i { font-size: 10px; color: #0B0B0B; }
+.token-labels { display: flex; gap: 12px; margin-top: 6px; }
+.token-labels span { font-size: 10px; color: #666; width: 100px; }
+.graph-widget { background: #0B0B0B; border-radius: 20px; padding: 16px 20px; color: white; display: flex; align-items: center; gap: 12px; }
+.graph-widget .progress-bar { flex: 1; }
+.graph-widget .progress-bar .track { height: 4px; background: #333; border-radius: 2px; overflow: hidden; }
+.graph-widget .progress-bar .fill { height: 100%; width: 65%; background: #FFD800; border-radius: 2px; }
+.graph-widget .progress-bar p { font-size: 10px; opacity: 0.6; margin: 4px 0 0 0; }
+.stats { display: flex; gap: 24px; margin-top: 16px; }
+.stats .stat { text-align: center; }
+.stats .stat .num { font-size: 22px; font-weight: 700; color: #0B0B0B; }
+.stats .stat p { font-size: 10px; color: #999; margin: 4px 0 0 0; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="notification">
+    <p class="sub">new token extracted</p>
+    <p class="title">stripe.com typography</p>
+    <p class="sub">3 seconds ago</p>
+    <button class="btn">view tokens</button>
+  </div>
+
+  <div class="header-row">
+    <div class="logo"><div class="dot1"></div><div class="dot2"></div></div>
+    <div class="nav-tabs">
+      <span class="active">daily</span>
+      <span>overview</span>
+    </div>
+  </div>
+
+  <h1>Design Brain<br>01: Capture</h1>
+  <div class="accent-bar"></div>
+
+  <div class="timeline">
+    <div class="months">
+      <span class="active">april</span><span>may</span><span>june</span><span>july</span><span>august</span><span>september</span><span>october</span>
+    </div>
+    <div class="days">
+      <span>22</span><span>23</span>
+      <div class="today"><span>24</span></div>
+      <span>25</span><span>26</span><span>27</span><span>28</span>
+      <span class="bold">29</span><span>30</span><span>31</span>
+      <span>01</span><span>02</span><span>03</span><span>04</span>
+    </div>
+  </div>
+
+  <p class="section-label">current captures to process</p>
+  <div class="objectives">
+    <div class="obj-card done">
+      <p class="struck">extract typography from stripe.com</p>
+      <span class="tag">main</span>
+      <div class="check"><i class="ti ti-check"></i></div>
+    </div>
+    <div class="obj-card done">
+      <p class="struck">parse color palette from linear.app</p>
+      <span class="tag">main</span>
+      <div class="check"><i class="ti ti-check"></i></div>
+    </div>
+    <div class="obj-card pending">
+      <p>capture components from vercel.com</p>
+      <span class="tag">personal</span>
+      <div class="uncheck"></div>
+    </div>
+    <div class="obj-card pending">
+      <p>extract motion patterns from apple.com</p>
+      <span class="tag">personal</span>
+      <div class="uncheck"></div>
+    </div>
+  </div>
+
+  <div class="bottom-grid">
+    <div>
+      <p class="section-label">practical tokens</p>
+      <div class="token-cards">
+        <div class="token-card gray">
+          <svg width="40" height="40" viewBox="0 0 40 40"><path d="M5 30 Q20 5 35 30" stroke="#666" fill="none" stroke-width="2"/></svg>
+          <div class="arrow"><i class="ti ti-arrow-right"></i></div>
+        </div>
+        <div class="token-card purple">
+          <svg width="40" height="40" viewBox="0 0 40 40"><circle cx="12" cy="20" r="4" fill="white"/><circle cx="28" cy="20" r="4" fill="white"/><line x1="16" y1="20" x2="24" y2="20" stroke="white" stroke-width="2"/></svg>
+          <div class="arrow"><i class="ti ti-arrow-right"></i></div>
+        </div>
+        <div class="token-card purple">
+          <svg width="40" height="40" viewBox="0 0 40 40"><rect x="8" y="12" width="24" height="16" rx="4" fill="none" stroke="white" stroke-width="2"/></svg>
+          <div class="arrow"><i class="ti ti-arrow-right"></i></div>
+        </div>
+      </div>
+      <div class="token-labels">
+        <span>typography tokens</span>
+        <span>color palette & variables</span>
+        <span>component library</span>
+      </div>
+    </div>
+    <div>
+      <p class="section-label">knowledge graph</p>
+      <div class="graph-widget">
+        <i class="ti ti-player-pause" style="font-size:16px;"></i>
+        <div class="progress-bar">
+          <div class="track"><div class="fill"></div></div>
+          <p>mapping 42 relationships...</p>
+        </div>
+        <i class="ti ti-player-skip-forward" style="font-size:14px;"></i>
+      </div>
+      <div class="stats">
+        <div class="stat"><span class="num">12</span><p>patterns</p></div>
+        <div class="stat"><span class="num">8</span><p>decisions</p></div>
+        <div class="stat"><span class="num">3</span><p>outcomes</p></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

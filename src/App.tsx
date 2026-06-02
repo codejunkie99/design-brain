@@ -1,21 +1,38 @@
-import { Button } from "@/components/ui/button"
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { Toaster } from "@/components/ui/sonner";
+import { ThemeProvider } from "@/components/theme-provider";
+import { AppShell } from "@/components/layout/AppShell";
+import { useInitialize } from "@/hooks/useInitialize";
+import { DashboardPage } from "@/components/dashboard/DashboardPage";
+import { CapturePage } from "@/components/capture/CapturePage";
+import { KnowledgeGraphPage } from "@/components/knowledge/KnowledgeGraphPage";
+import { TokensPage } from "@/components/tokens/TokensPage";
+import { MoodboardPage } from "@/components/moodboard/MoodboardPage";
+import { SearchPage } from "@/components/search/SearchPage";
+import { SettingsPage } from "@/components/settings/SettingsPage";
 
-export function App() {
+export default function App() {
+  useInitialize();
+
   return (
-    <div className="flex min-h-svh p-6">
-      <div className="flex max-w-md min-w-0 flex-col gap-4 text-sm leading-loose">
-        <div>
-          <h1 className="font-medium">Project ready!</h1>
-          <p>You may now add components and start building.</p>
-          <p>We&apos;ve already added the button component for you.</p>
-          <Button className="mt-2">Button</Button>
-        </div>
-        <div className="font-mono text-xs text-muted-foreground">
-          (Press <kbd>d</kbd> to toggle dark mode)
-        </div>
-      </div>
-    </div>
-  )
+    <ThemeProvider defaultTheme="light" storageKey="design-brain-theme">
+      <TooltipProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route element={<AppShell />}>
+              <Route index element={<DashboardPage />} />
+              <Route path="capture" element={<CapturePage />} />
+              <Route path="knowledge" element={<KnowledgeGraphPage />} />
+              <Route path="tokens" element={<TokensPage />} />
+              <Route path="moodboard" element={<MoodboardPage />} />
+              <Route path="search" element={<SearchPage />} />
+              <Route path="settings" element={<SettingsPage />} />
+            </Route>
+          </Routes>
+        </BrowserRouter>
+        <Toaster />
+      </TooltipProvider>
+    </ThemeProvider>
+  );
 }
-
-export default App
