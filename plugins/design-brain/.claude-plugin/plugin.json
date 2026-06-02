@@ -1,0 +1,22 @@
+{
+  "name": "design-brain",
+  "version": "0.8.2",
+  "description": "Design knowledge system with capture pipeline, scorecards, trends, component graphing, system diffs, context generation, and persistent markdown memory.",
+  "author": {
+    "name": "design-brain",
+    "github": "https://github.com/design-brain"
+  },
+  "keywords": [
+    "design",
+    "design-system",
+    "agent-browser",
+    "inspiration",
+    "markdown",
+    "knowledge-base",
+    "knowledge-graph",
+    "second-brain",
+    "design-tokens"
+  ],
+  "license": "MIT",
+  "repository": "https://github.com/design-brain/design-brain"
+}
