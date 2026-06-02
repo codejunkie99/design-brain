@@ -11,6 +11,7 @@ import { TokensPage } from "@/components/tokens/TokensPage";
 import { MoodboardPage } from "@/components/moodboard/MoodboardPage";
 import { SearchPage } from "@/components/search/SearchPage";
 import { SettingsPage } from "@/components/settings/SettingsPage";
+import { DesignSystemPage } from "@/components/design-system/DesignSystemPage";
 
 export default function App() {
   useInitialize();
@@ -28,6 +29,7 @@ export default function App() {
               <Route path="moodboard" element={<MoodboardPage />} />
               <Route path="search" element={<SearchPage />} />
               <Route path="settings" element={<SettingsPage />} />
+              <Route path="design-system" element={<DesignSystemPage />} />
             </Route>
           </Routes>
         </BrowserRouter>

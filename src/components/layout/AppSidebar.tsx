@@ -7,6 +7,7 @@ import {
   Search,
   Settings,
   LayoutGrid,
+  Paintbrush,
 } from "lucide-react";
 import {
   Sidebar,
@@ -28,6 +29,7 @@ const navItems = [
   { title: "Design Tokens", icon: Palette, path: "/tokens" },
   { title: "Moodboard", icon: LayoutGrid, path: "/moodboard" },
   { title: "Search", icon: Search, path: "/search" },
+  { title: "Design System", icon: Paintbrush, path: "/design-system" },
 ];
 
 export function AppSidebar() {
