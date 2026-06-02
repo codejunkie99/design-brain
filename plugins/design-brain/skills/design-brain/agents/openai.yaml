@@ -1,0 +1,3 @@
+display_name: Design Brain
+short_description: Capture and query relational design memory from websites/screenshots.
+default_prompt: Build or query a project design brain using Agent Browser CLI and design-brain-memory.
